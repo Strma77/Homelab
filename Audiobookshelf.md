@@ -43,3 +43,19 @@ This constraint informed the decision to:
 - Treat remote access as a networking problem rather than a tooling problem
 - Prioritize architectures that function behind ISP-controlled NAT
 - Plan for alternative VPN topologies that do not require exposed home services
+
+## Remote Access Strategy
+
+### Phase 1 – Local VPN Testing
+- WireGuard deployed inside the Ubuntu Server VM using Docker
+- VPN functionality validated within the local network
+
+### Phase 2 – ISP-Constrained Environment
+- ISP ONT does not permit inbound port forwarding
+- Direct remote VPN access from the internet is not possible
+
+### Phase 3 – Planned Solutions
+One of the following approaches will be implemented:
+- Bridge mode on ISP ONT with a user-controlled router
+- Outbound-only VPN architecture using an intermediate VPS
+- Migration of edge networking to user-owned hardware
