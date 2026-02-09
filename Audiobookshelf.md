@@ -76,3 +76,11 @@ One of the following approaches will be implemented:
 - Secure remote access via VPN
 - Audiobookshelf deployment behind authenticated access
 - Optional HTTPS reverse proxy
+
+---
+---
+
+# Conclusion
+Remote access is currently limited by ISP-managed network equipment.
+Future iterations will revisit this once user-controlled routing is available.
+
