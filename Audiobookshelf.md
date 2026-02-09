@@ -59,3 +59,20 @@ One of the following approaches will be implemented:
 - Bridge mode on ISP ONT with a user-controlled router
 - Outbound-only VPN architecture using an intermediate VPS
 - Migration of edge networking to user-owned hardware
+
+## Roadmap
+
+### Completed
+- Ubuntu Server VM deployment
+- Static IP configuration
+- Docker-based service architecture
+- Local WireGuard deployment
+
+### In Progress
+- Evaluation of remote access strategies under ISP constraints
+
+### Planned
+- Migration to bridge mode or user-controlled router
+- Secure remote access via VPN
+- Audiobookshelf deployment behind authenticated access
+- Optional HTTPS reverse proxy
