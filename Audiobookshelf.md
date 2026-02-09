@@ -34,3 +34,12 @@ The ONT exposes only a limited user-level management interface and does not prov
 
 As a result, inbound connections from the public internet to the local network are not possible in the default configuration.
 This directly impacts VPN designs that rely on incoming connections to a home-hosted server.
+
+### Design Implications
+
+Due to the restricted capabilities of the ISP-provided ONT, the initial architecture must avoid reliance on inbound port forwarding.
+
+This constraint informed the decision to:
+- Treat remote access as a networking problem rather than a tooling problem
+- Prioritize architectures that function behind ISP-controlled NAT
+- Plan for alternative VPN topologies that do not require exposed home services
