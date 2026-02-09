@@ -22,3 +22,15 @@ A static IP was configured to ensure consistent addressing for:
 - Static IP configured using netplan (`50-cloud-init.yaml`)
 - DHCP disabled on the primary interface
 - Configuration validated using routing and connectivity tests
+
+## Constraints & Environment Limitations
+
+The project is deployed in a residential network using an ISP-provided ZTE F8648P XGS-PON ONT.
+
+The ONT exposes only a limited user-level management interface and does not provide access to:
+- NAT configuration
+- Port forwarding
+- Firewall rules
+
+As a result, inbound connections from the public internet to the local network are not possible in the default configuration.
+This directly impacts VPN designs that rely on incoming connections to a home-hosted server.
