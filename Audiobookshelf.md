@@ -129,3 +129,41 @@ tailscale ip -4
 ✅ VM accessible from phone remotely  
 ⏳ Audiobookshelf deployment pending
 
+#### Storage Configuration
+
+Audiobooks are stored on the host machine's 5.5TB HDD to avoid duplication and enable centralized management.
+
+**VirtualBox Shared Folder Setup:**
+
+1. **Host Configuration** (VirtualBox GUI)
+   - Shared folder created pointing to `~/audiobooks` on host
+   - Folder name: `audiobooks`
+   - Mount point: `/mnt/audiobooks`
+   - Auto-mount: enabled
+   - Read-only: disabled
+
+2. **Guest Mounting** (Ubuntu Server VM)
+```bash
+   # Verify Guest Additions are loaded
+   lsmod | grep vboxguest
+   # Output: vboxguest 57344 0 ✅
+
+   # Create mount point
+   sudo mkdir -p /mnt/audiobooks
+
+   # Mount the shared folder
+   sudo mount -t vboxsf audiobooks /mnt/audiobooks
+
+   # Verify accessibility
+   ls -la /mnt/audiobooks
+```
+
+3. **Persistence**
+   - Auto-mount via VirtualBox settings
+   - Manual mount command preserved for troubleshooting
+
+**Result:**
+- Audiobooks stored once on host HDD
+- Accessible to VM via `/mnt/audiobooks`
+- No file duplication
+- Changes on host immediately visible in VM
