@@ -23,6 +23,8 @@ A static IP was configured to ensure consistent addressing for:
 - DHCP disabled on the primary interface
 - Configuration validated using routing and connectivity tests
 
+---
+
 ## Constraints & Environment Limitations
 
 The project is deployed in a residential network using an ISP-provided ZTE F8648P XGS-PON ONT.
