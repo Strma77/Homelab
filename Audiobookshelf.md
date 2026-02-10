@@ -84,3 +84,48 @@ One of the following approaches will be implemented:
 Remote access is currently limited by ISP-managed network equipment.
 Future iterations will revisit this once user-controlled routing is available.
 
+---
+
+## Phase 4 – Tailscale Mesh Network Solution (Implemented)
+
+### Problem
+ISP ONT restrictions prevent inbound port forwarding, blocking traditional VPN server hosting.
+
+### Solution
+Tailscale provides a mesh VPN that works through NAT/firewalls without requiring port forwarding.
+- Works via outbound connections (allowed by ISP)
+- Creates encrypted peer-to-peer network
+- Provides stable IPs for accessing services remotely
+
+### Implementation
+**Date:** February 9, 2025
+
+#### Tailscale Installation on Ubuntu Server VM
+```bash
+# Install Tailscale
+curl -fsSL https://tailscale.com/install.sh | sh
+
+# Start and authenticate
+sudo tailscale up
+# Authenticated via browser on host machine
+
+# Verify IP assignment
+tailscale ip -4
+# Assigned: 100.x.x.x (your actual IP here)
+```
+
+#### Client Setup
+- Tailscale app installed on Android/iOS
+- Authenticated with same account
+- Connection verified via browser test
+
+#### Verification
+- Tested connectivity from phone to VM Tailscale IP
+- "Connection refused" response = network path working
+- Ready for service deployment
+
+### Status
+✅ Tailscale mesh network operational  
+✅ VM accessible from phone remotely  
+⏳ Audiobookshelf deployment pending
+
