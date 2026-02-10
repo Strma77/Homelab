@@ -1,23 +1,40 @@
-# Homelab & Infrastructure Learning Repository
+# HomeLab
 
-This repository documents my hands-on learning and experimentation in building, operating, and troubleshooting self-hosted infrastructure.
+This repository documents my hands-on learning in building and operating a small, self-hosted homelab on personal hardware.
 
-Primary focus areas:
+The focus is on **understanding infrastructure through practice**, including:
 - Linux system administration
-- Virtualization and VM lifecycle management
-- Docker-based service deployment
-- Networking fundamentals and constraints
-- Security hardening and controlled exposure of services
+- Virtualization on a single host
+- Dockerized self-hosted services
+- Networking fundamentals and real-world constraints
+- Security considerations for private services
 
-The goal of this repository is not to present a polished production system, but to **demonstrate practical understanding** through:
-- real constraints (ISP limitations, single-host setup)
-- architectural decisions and trade-offs
-- failures, fixes, and lessons learned
+This is not a production environment.  
+It is a learning-focused lab shaped by **actual limitations** such as ISP-controlled networking equipment and a single-machine setup.
 
-## Repository Structure
+---
 
-- `workstation-setup.md` — host machine and tooling baseline  
-- `homelab/` — virtual machines, services, and networking experiments  
-- `docs/` — architectural notes, decisions, and post-mortems  
+## Repository Contents
 
-Each section is documented incrementally as the lab evolves.
+- **README.md**  
+  High-level overview and intent of the homelab.
+
+- **workstation-setup.md**  
+  Describes the host Linux workstation that serves as the foundation for all virtualization and lab work.
+
+- **Audiobookshelf.md**  
+  A documented project covering the deployment of a self-hosted Audiobookshelf service, including networking decisions, storage strategy, and remote access under ISP constraints.
+
+Each document focuses on *why* decisions were made, not just *what* commands were run.
+
+---
+
+## Scope & Philosophy
+
+The goal of this homelab is to:
+- Learn by building under constraints
+- Make architectural trade-offs explicit
+- Document failures, fixes, and lessons learned
+- Develop skills transferable to real infrastructure roles
+
+The lab will evolve over time as hardware, networking control, and experience improve.
