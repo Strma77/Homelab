@@ -111,7 +111,7 @@ sudo tailscale up
 
 # Verify IP assignment
 tailscale ip -4
-# Assigned: 100.x.x.x (your actual IP here)
+# Assigned: 100.x.x.x
 ```
 
 #### Client Setup
