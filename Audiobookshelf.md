@@ -1,156 +1,137 @@
+# Audiobookshelf
+
+Self-hosted audiobook server running in Docker on an Ubuntu Server VM, accessible remotely via Tailscale.
+
+---
+
 ## Networking Configuration
 
-The Ubuntu Server VM is connected to the local network using a **bridged network adapter**, allowing it to behave as a first-class host on the LAN. This simplifies VPN usage and service access.
+The Ubuntu Server VM uses a **bridged network adapter**, allowing it to behave as a first-class host on the LAN.
 
 ### IP Addressing
 
-* Interface: `enp0s3`
-* Static IP: `192.168.100.50/24`
-* Gateway: `192.168.100.1`
-* Broadcast: `192.168.100.255`
+| Setting | Value |
+|---------|-------|
+| Interface | `enp0s3` |
+| Static IP | `192.168.100.50/24` |
+| Gateway | `192.168.100.1` |
+| DNS | `1.1.1.1`, `8.8.8.8` |
 
-A static IP is used to ensure consistent addressing for VPN endpoints, service exposure, and future routing changes.
+A static IP ensures consistent addressing for VPN endpoints and service access.
 
-### Routing & Connectivity
+### Netplan Configuration
 
-* Default route via `192.168.100.1`
-* Internet connectivity verified via IP reachability and DNS resolution
+`/etc/netplan/50-cloud-init.yaml`:
 
-### Configuration Method
+```yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: no
+      addresses: [192.168.100.50/24]
+      routes:
+        - to: default
+          via: 192.168.100.1
+      nameservers:
+        addresses: [1.1.1.1, 8.8.8.8]
+```
 
-* Netplan configuration (`50-cloud-init.yaml`)
-* DHCP disabled on the primary interface
-* Configuration validated using routing table inspection and connectivity tests
+```bash
+sudo netplan apply
+```
+
+> **Note:** DNS must be explicitly set in Netplan. Without it, Docker image pulls fail and Tailscale throws DNS errors on startup.
 
 ---
 
 ## Environment Constraints
 
-The project is deployed in a residential network using an **ISP-provided ZTE F8648P XGS-PON ONT**.
+Deployed on a residential network behind an **ISP-provided ZTE F8648P XGS-PON ONT** with no access to NAT, port forwarding, or firewall configuration. Inbound connections from the public internet are not possible.
 
-Limitations of the ONT include:
-
-* No access to NAT configuration
-* No port forwarding
-* No firewall rule management
-
-As a result, **inbound connections from the public internet are not possible**, which directly impacts VPN designs that rely on exposed home services.
-
-### Design Implications
-
-Due to ISP-controlled network equipment, the architecture must:
-
-* Avoid reliance on inbound port forwarding
-* Function behind carrier-grade or locked-down NAT
-* Use outbound-only or NAT-traversal-friendly networking solutions
+All remote access must use outbound-only or NAT-traversal-friendly solutions.
 
 ---
 
-## Remote Access Strategy
+## Remote Access — Tailscale
 
-### Phase 1 – Local VPN Validation
+### Why Tailscale
 
-* WireGuard deployed inside the Ubuntu Server VM using Docker
-* VPN functionality validated within the local network
+Traditional VPN hosting requires inbound port forwarding which the ISP ONT blocks. Tailscale works via outbound-only connections, requiring zero router configuration.
 
-### Phase 2 – ISP-Constrained Reality
-
-* Inbound VPN access blocked by ONT limitations
-* Traditional VPN server model deemed infeasible
-
-### Phase 3 – Architectural Alternatives
-
-Evaluated approaches:
-
-* Bridge mode on ISP ONT with user-controlled router
-* VPS-based hub-and-spoke VPN
-* Mesh VPN solution (selected)
-
----
-
-## Phase 4 – Tailscale Mesh Network (Implemented)
-
-### Problem
-
-ISP ONT restrictions prevent inbound port forwarding, blocking traditional VPN hosting.
-
-### Solution
-
-**Tailscale mesh VPN** was implemented to enable secure remote access without requiring router configuration.
-
-Key properties:
-
-* Outbound-only connections
-* Encrypted peer-to-peer mesh
-* Stable, private IP addressing
-
-### Implementation
-
-**Date:** February 9, 2025
-
-#### Tailscale Installation (Ubuntu Server VM)
+### Installation
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up
-tailscale ip -4
+sudo tailscale up --accept-dns=false
+tailscale status
 ```
 
-* Authentication performed via browser on host machine
-* Assigned IP: `100.x.x.x`
+> **Critical:** Always use `--accept-dns=false`. Without it, Tailscale overrides system DNS and breaks connectivity after reboot.
 
-#### Client Setup
+### Client Setup
 
-* Tailscale installed on mobile devices
-* Authenticated under the same account
-* Connectivity verified ("connection refused" confirms network path is functional)
+- Install Tailscale on all client devices (phone, laptop, etc.)
+- Authenticate under the same account
+- Confirm the VM shows a green dot in the Tailscale app before attempting to connect
 
-**Status:** ✅ Mesh network operational
+### Verify
+
+```bash
+tailscale status        # VM should show with 100.x.x.x IP
+curl http://100.x.x.x:13378  # Should return HTML if Audiobookshelf is running
+```
 
 ---
 
 ## Storage Architecture
 
-Audiobooks are stored on the host machine’s **512 GB SSD** to avoid duplication and maintain a single source of truth.
+Audiobooks are stored on the **host machine's SSD** as a single source of truth. The VM accesses them via a VirtualBox shared folder — no duplication, no sync overhead.
 
-### VirtualBox Shared Folder
+### Host Setup
 
-**Host Configuration (GUI):**
-
-* Folder path: `~/audiobooks`
-* Folder name: `audiobooks`
-* Mount point: `/mnt/audiobooks`
-* Auto-mount: enabled
-* Read-only: disabled
-
-**Guest Configuration (Ubuntu Server VM):**
+Create the directory on the host:
 
 ```bash
-lsmod | grep vboxguest
-sudo mkdir -p /mnt/audiobooks
-sudo mount -t vboxsf audiobooks /mnt/audiobooks
-ls -la /mnt/audiobooks
+mkdir ~/audiobooks
 ```
 
-### Persistence
+In **VirtualBox GUI** → VM Settings → Shared Folders → Add:
+
+| Setting | Value |
+|---------|-------|
+| Folder Path | `~/audiobooks` |
+| Folder Name | `audiobooks` |
+| Mount Point | *(leave empty)* |
+| Make Permanent | ✅ |
+| Make Global | ❌ |
+| Read-only | ❌ |
+
+### VM Setup
 
 ```bash
-sudo nano /etc/fstab
+sudo mkdir -p /mnt/audiobooks
+```
 
+Add to `/etc/fstab` for persistence:
+
+```
 audiobooks  /mnt/audiobooks  vboxsf  defaults,uid=1000,gid=1000  0  0
 ```
 
-**Result:**
+Mount immediately without rebooting:
 
-* Files stored once on host
-* Instantly accessible to VM
-* No duplication or sync overhead
+```bash
+sudo mount -a
+ls /mnt/audiobooks  # should return contents or empty with no errors
+```
+
+> **Note:** VirtualBox auto-mount is unreliable. Always use `/etc/fstab`. Guest Additions must be installed for shared folders to work — verify with `lsmod | grep vboxguest`.
 
 ---
 
 ## Audiobookshelf Deployment
-
-### Docker Deployment
 
 ```bash
 mkdir -p ~/audiobookshelf/config ~/audiobookshelf/metadata
@@ -165,20 +146,24 @@ docker run -d \
   ghcr.io/advplyr/audiobookshelf:latest
 ```
 
+Verify it's running:
+
+```bash
+docker ps
+```
+
 ### Initial Setup
 
-* Accessed via: `http://100.x.x.x:13378`
-* Admin account created
-* Audiobooks library added at `/audiobooks`
-* Metadata fetched automatically
+1. Open `http://192.168.100.50:13378` in browser
+2. Create admin account
+3. Add library → set folder to `/audiobooks` → scan
+4. For remote access use `http://100.x.x.x:13378` (Tailscale IP)
 
 ### Mobile App
 
-* Audiobookshelf app installed
-* Server added via Tailscale IP
-* Remote playback verified
-
-**Status:** ✅ Service operational
+- Install Audiobookshelf app
+- Add server via Tailscale IP: `http://100.x.x.x:13378`
+- Ensure Tailscale is active on the device before connecting
 
 ---
 
@@ -189,51 +174,45 @@ docker run -d \
         ↓
 [Ubuntu Server VM (100.x.x.x)]
         ↓
-[Docker: Audiobookshelf]
+[Docker: Audiobookshelf :13378]
         ↓
 [/mnt/audiobooks (vboxsf)]
         ↓
-[Host PC – 5.5 TB HDD]
+[Host PC SSD – ~/audiobooks]
 ```
 
 ---
 
 ## Key Design Decisions
 
-1. **Tailscale over traditional VPN** – no port forwarding, NAT-friendly
-2. **Shared folders over file duplication** – single source of truth
-3. **Dockerized services** – isolation, portability, easy updates
+1. **Tailscale over traditional VPN** — no port forwarding needed, works behind locked ISP equipment
+2. **Shared folders over file duplication** — single source of truth on host SSD
+3. **Dockerized deployment** — easy updates, isolated, portable
 
 ---
 
-## Current Limitations
+## Limitations
 
-* VM depends on host uptime
-* Tailscale required on clients
-* No HTTPS (acceptable due to encrypted tunnel)
+- VM and service depend on host uptime
+- Tailscale must be active on all client devices
+- No HTTPS — acceptable since Tailscale encrypts the tunnel end-to-end
 
 ---
 
 ## Future Improvements
 
-* Migrate to dedicated 24/7 hardware
-* Add reverse proxy with HTTPS
-* Automate library rescans
+- Migrate to dedicated always-on hardware
+- Add reverse proxy (Caddy/Nginx) with HTTPS
+- Automate library rescans
 
 ---
 
 ## Lessons Learned
 
-* VirtualBox auto-mount is unreliable → `/etc/fstab` required
-* Guest Additions are mandatory for shared folders
-* Docker volume paths must be absolute
-* Outbound-only VPNs are ideal for ISP-restricted networks
-
----
-
-## Status: Phase 4 Complete ✅
-
-* Tailscale operational
-* Shared storage mounted
-* Audiobookshelf deployed
-* Remote access verified
+| Issue | Fix |
+|-------|-----|
+| VirtualBox auto-mount unreliable | Use `/etc/fstab` instead |
+| Docker pull fails on fresh VM | Set explicit DNS in Netplan (`8.8.8.8`, `1.1.1.1`) |
+| Tailscale DNS errors on reboot | Use `--accept-dns=false` on `tailscale up` |
+| Tailscale IP unreachable from phone | Tailscale app must be active and connected on the client device |
+| Service accessible locally but not via Tailscale | Confirm VM shows green dot in Tailscale app on client |
