@@ -1,40 +1,63 @@
 # HomeLab
 
-This repository documents my hands-on learning in building and operating a small, self-hosted homelab on personal hardware.
+This repository documents my hands-on learning in building and operating a self-hosted homelab on personal hardware.
 
 The focus is on **understanding infrastructure through practice**, including:
+
 - Linux system administration
 - Virtualization on a single host
 - Dockerized self-hosted services
 - Networking fundamentals and real-world constraints
 - Security considerations for private services
 
-This is not a production environment.  
-It is a learning-focused lab shaped by **actual limitations** such as ISP-controlled networking equipment and a single-machine setup.
+This is not a production environment. It is a learning-focused lab shaped by actual limitations such as ISP-controlled networking equipment and a single-machine setup.
 
 ---
 
-## Repository Contents
+## Repository Structure
 
-- **README.md**  
-  High-level overview and intent of the homelab.
-
-- **workstation-setup.md**  
-  Describes the host Linux workstation that serves as the foundation for all virtualization and lab work.
-
-- **Audiobookshelf.md**  
-  A documented project covering the deployment of a self-hosted Audiobookshelf service, including networking decisions, storage strategy, and remote access under ISP constraints.
-
-Each document focuses on *why* decisions were made, not just *what* commands were run.
+```
+homelab/
+├── README.md
+├── workstation-setup.md
+└── services/
+    ├── audiobookshelf/
+    │   └── Audiobookshelf.md
+    └── navidrome/
+        ├── Navidrome.md
+        └── scripts/
+            └── musiq.py
+```
 
 ---
 
-## Scope & Philosophy
+## Services
 
-The goal of this homelab is to:
-- Learn by building under constraints
-- Make architectural trade-offs explicit
-- Document failures, fixes, and lessons learned
-- Develop skills transferable to real infrastructure roles
+### Audiobookshelf
 
-The lab will evolve over time as hardware, networking control, and experience improve.
+Self-hosted audiobook server accessible remotely via Tailscale mesh VPN. Stores audiobooks on the host SSD, served to the VM via VirtualBox shared folders, containerized with Docker.
+
+→ [Audiobookshelf.md](services/audiobookshelf/Audiobookshelf.md)
+
+### Navidrome
+
+Self-hosted music streaming server with Subsonic API support for mobile clients. Includes a music acquisition script using yt-dlp and ffmpeg for downloading and tagging songs from YouTube.
+
+→ [Navidrome.md](services/navidrome/Navidrome.md)
+
+---
+
+## Infrastructure
+
+All services run inside a single Ubuntu Server 24.04.4 LTS VM on VirtualBox, connected to the LAN via a bridged network adapter. Remote access is handled by Tailscale mesh VPN — no port forwarding required.
+
+→ [workstation-setup.md](workstation-setup.md)
+
+---
+
+## Philosophy
+
+- Learn by building under real constraints
+- Document failures and fixes, not just commands
+- Make architectural decisions explicit and reproducible
+- Build skills transferable to real infrastructure roles
