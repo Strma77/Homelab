@@ -45,6 +45,12 @@ Self-hosted music streaming server with Subsonic API support for mobile clients.
 
 → [Navidrome.md](services/navidrome/Navidrome.md)
 
+### SOC Security Lab
+
+Home-built Security Operations Center lab using Wazuh SIEM, Kali Linux and Metasploitable2. Simulates real attack scenarios and detects them using MITRE ATT&CK framework mapping
+
+→ [SOC Lab](security/soc-lab/README.md)
+
 ---
 
 ## Infrastructure
