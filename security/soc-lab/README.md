@@ -257,6 +257,8 @@ SSH session 1 opened ([fe80::ee70:f02a:d94f:583a%eth0]:42853 -> [fe80::a00:27ff:
 
 Full SSH session established on Metasploitable. From an attacker's perspective — complete system compromise.
 
+![Metasploit terminal output showing successful SSH session](Terminal.png)
+
 ---
 
 ### Wazuh Detection Results
@@ -277,6 +279,10 @@ Immediately after the attack, Wazuh dashboard showed:
 - **T1078 — Valid Accounts:** Flagged because the attack ultimately succeeded with real credentials
 
 The MITRE ATT&CK framework is a globally recognized knowledge base of adversary techniques. Wazuh automatically maps detected events to these techniques — exactly what SOC analysts use to classify and respond to incidents in real environments.
+
+![Wazuh Threat Hunting dashboard showing attack detection and MITRE ATT&CK mapping](Wazuh.png)
+
+![Wazuh Events log showing authentication events at time of attack](WazuhEvents.png)
 
 ---
 
