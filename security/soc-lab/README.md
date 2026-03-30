@@ -1,6 +1,6 @@
 # SOC Home Lab — Build Documentation
 
-> **Author:** Vito Strma  
+> **Author:** Vito Strmečki
 > **Date:** March 30, 2026  
 > **Host OS:** Ubuntu 25.10  
 > **Hypervisor:** Oracle VirtualBox  
