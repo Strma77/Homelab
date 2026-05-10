@@ -1,0 +1,30 @@
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    ports:
+      - "13378:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - homelab
+    volumes:
+      - audiobookshelf_config:/config
+      - audiobookshelf_metadata:/metadata
+      - /mnt/audiobooks:/audiobooks
+
+networks:
+  homelab:
+    name: homelab
+    driver: bridge
+
+volumes:
+  audiobookshelf_config:
+    name: audiobookshelf_config
+  audiobookshelf_metadata:
+    name: audiobookshelf_metadata
