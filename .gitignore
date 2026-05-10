@@ -1,0 +1,53 @@
+
+#===== Secrets =====
+.env
+.env.*
+!.env.example
+
+
+#===== Backups =====
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.bak
+*.sql
+*.sql.gz
+*.dump
+
+#===== SSH keys and certificates =====
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.pfx
+*.p12
+
+#===== IDE clutter =====
+# no shared workspaces so its fine
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+#===== OS-specific files =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+#===== Logs and runtime data =====
+*.log
+logs/
+
+#===== Python clutter =====
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+venv/
+.venv/
+
+#===== Docker volume data
+docker-data/
+volumes/
