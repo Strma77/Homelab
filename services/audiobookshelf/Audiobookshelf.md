@@ -131,26 +131,27 @@ ls /mnt/audiobooks  # should return contents or empty with no errors
 
 ---
 
-## Audiobookshelf Deployment
+## Deployment
 
+Deployed via `docker-compose.yml` in this directory.
+
+From the VM:
 ```bash
-mkdir -p ~/audiobookshelf/config ~/audiobookshelf/metadata
-
-docker run -d \
-  --name audiobookshelf \
-  --restart unless-stopped \
-  -p 13378:80 \
-  -v /mnt/audiobooks:/audiobooks \
-  -v ~/audiobookshelf/config:/config \
-  -v ~/audiobookshelf/metadata:/metadata \
-  ghcr.io/advplyr/audiobookshelf:latest
+cd ~/homelab/services/audiobookshelf
+docker compose up -d
+docker ps   # verify (healthy) status appears after ~40s
 ```
 
-Verify it's running:
+The compose stack uses:
+- Named volumes for `/config` and `/metadata` (Docker-managed app state)
+- Bind mount `/mnt/audiobooks` → `/audiobooks` (user-managed media library)
+- Custom `homelab` bridge network for future inter-service DNS
+- HTTP healthcheck via `wget --spider http://localhost/` (40s start_period)
+- `restart: unless-stopped` so the container survives VM reboots
 
-```bash
-docker ps
-```
+See `docker-compose.yml` in this directory for the full definition.
+
+---
 
 ### Initial Setup
 
@@ -170,15 +171,30 @@ docker ps
 ## Architecture Overview
 
 ```
-[Mobile Device + Tailscale]
-        ↓
-[Ubuntu Server VM (100.x.x.x)]
-        ↓
-[Docker: Audiobookshelf :13378]
-        ↓
-[/mnt/audiobooks (vboxsf)]
-        ↓
-[Host PC SSD – ~/audiobooks]
+[Mobile / Desktop client]
+        │
+   Tailscale (encrypted mesh, 100.x.x.x)
+        │
+        ▼
+[Ubuntu Server VM — 192.168.100.50]
+        │
+   docker compose stack (network: homelab)
+        │
+        ▼
+┌──────────────────────────────────────┐
+│  audiobookshelf:latest  (port 13378) │
+│  healthcheck: wget /, every 30s      │
+└──┬───────────────┬──────────────┬────┘
+   │               │              │
+   ▼               ▼              ▼
+[named vol]   [named vol]    [bind mount]
+ _config       _metadata      /mnt/audiobooks
+                                  │
+                                  ▼
+                          vboxsf shared folder
+                                  │
+                                  ▼
+                          [Host SSD — ~/audiobooks]
 ```
 
 ---
@@ -202,8 +218,30 @@ docker ps
 ## Future Improvements
 
 - Migrate to dedicated always-on hardware
-- Add reverse proxy (Caddy/Nginx) with HTTPS
+- Reverse proxy via Nginx Proxy Manager (Phase 0) with HTTPS through internal CA in Phase 3
 - Automate library rescans
+
+---
+
+## History
+
+### 2026-05-09 — Migrate from `docker run` to `docker-compose.yml`
+**Why:** Original deployment was a hand-typed `docker run` invocation copied from documentation without full understanding. Not version-controllable, not reproducible, no healthcheck, bind mounts everywhere.
+
+**Changes:**
+- Replaced `docker run` with declarative `docker-compose.yml` in repo
+- Switched `/config` and `/metadata` to named volumes (Docker-managed)
+- Kept `/audiobooks` as bind mount to `/mnt/audiobooks` (user-managed media)
+- Added custom `homelab` bridge network (foundation for inter-service DNS)
+- Added HTTP healthcheck via `wget` with 40s start_period
+- Migrated existing config/metadata into the new named volumes via `cp -a`
+
+**Validation:** Container reports healthy, library and listening progress preserved across migration. Old container kept renamed as `audiobookshelf_old` for 24h rollback window.
+
+### 2026-03-01 — Initial deployment
+Hand-typed `docker run` deployment with bind mounts to `~/audiobookshelf/config` and `~/audiobookshelf/metadata`. Audiobooks served from `/mnt/audiobooks` via VirtualBox shared folder. Remote access via Tailscale.
+
+(Deployment retroactively replaced 2026-05; see migration entry above.)
 
 ---
 
