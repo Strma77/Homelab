@@ -3,7 +3,7 @@
 **Date:** 2026-05-10
 **VM:** Ubuntu Server 24.04.4 LTS at `192.168.100.50`
 **Operator:** strma77
-**Status:** SSH key-only auth + root login disabled. fail2ban and UFW pending.
+**Status:** SSH key-only auth + root login disabled. fail2ban and UFW applied.
 
 ---
 
@@ -212,12 +212,124 @@ Reloading makes `sshd` re-read its configuration without terminating existing SS
 ### The two-terminal safety pattern
 Two SSH sessions are kept open while modifying SSH settings: one active working session and one untouched fallback session. Existing SSH sessions remain alive even if the configuration changes, so if the working session becomes unusable after a reload, the fallback session still provides access to fix the configuration and prevent lockout.
 
+### Why `ufw limit` vs `allow` for SSH
+`allow` opens the port unconditionally. `limit` opens it but adds rate-limiting: if a single IP makes 6 or more connection attempts within 30 seconds, UFW temporarily blocks it. This is a lightweight complement to fail2ban — they work at different layers. UFW `limit` throttles connection *rate* (how often you can knock on the door); fail2ban bans on *auth failures* (how many times you guess wrong). Using `limit` on port 22 adds friction to brute-force attempts for free.
+
+**Why this matters:** enabling UFW does NOT protect your Docker-published ports (like 13378). Don't assume "UFW is on, everything's firewalled." UFW protects host-level services (SSH); Docker manages its own exposure. Awareness now, real fix in Phase 0 with the reverse proxy.
 ---
 
-## Pending
-- [ ] fail2ban — auto-ban IPs after repeated failed auth attempts
-- [ ] UFW firewall — default-deny inbound, allow only required ports
+## Fail2ban
+
+### What it does
+
+Watches log files for failure patterns. When an IP racks up too many failed auth attempts in a time window, fail2ban tells the firewall to *drop that IP* for a set period.
+
+### Why bother
+
+With password auth disabled, fail2ban buys log hygiene, resource savings, defense in depth for the future
+
+### Configuration
+Settings live in `/etc/fail2ban/jail.local`. This overrides the package defaults without touching the shipped `defaults-debian.conf` — same upgrade-safe override pattern as `sshd_config.d/`.
+
+```ini
+[DEFAULT]
+bantime = 24h
+findtime = 30m
+maxretry = 5
+bantime.increment = true
+bantime.factor = 1.5
+bantime.formula = bantime * (1 + failures / 2)
+ignoreip = 127.0.0.1/8 ::1 192.168.100.0/24 100.64.0.0/10
+```
+
+- `bantime = 24h` — banned IPs blocked for a day
+- `findtime = 30m` — window in which failures are counted
+- `maxretry = 5` — failures allowed before a ban
+- `bantime.increment` — repeat offenders get progressively longer bans
+- `ignoreip` — never-ban list: localhost, the LAN (`192.168.100.0/24`), and the Tailscale range (`100.64.0.0/10`). **Critical — without the LAN whitelisted, a few fat-fingered logins could ban you from your own VM.**
+
+Apply changes with `sudo systemctl restart fail2ban` (jail config needs a restart, not reload).
+
+### Backend note
+
+Reads from systemd journal, bans via nftables
+
+### Verify commands
+`sudo fail2ban-client status sshd`
+`sudo fail2ban-client get sshd bantime`
+`sudo fail2ban-client get sshd ignoreip`
+
+---
+
+## UFW Firewall
+
+### What it is and what it does
+
+Host firewall.
+ 
+Default-deny inbound - block everything coming in by default then explicitly allow only the ports you actually need
+Allow outbound - stays open because VM needs to reach the internet for updates, Docker pulls, Tailscale, etc.
+
+### Rules
+
+```bash
+# 1. Set default policies (deny incoming, allow outgoing) — NOT enabled yet
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# 2. Allow SSH FIRST — before enabling. Use 'limit' for built-in rate limiting.
+sudo ufw limit 22/tcp comment 'SSH rate-limited'
+
+# 3. (Optional) explicitly allow Audiobookshelf — even though Docker bypasses UFW,
+#    adding the rule documents intent and covers the case if Docker's behavior changes
+sudo ufw allow 13378/tcp comment 'Audiobookshelf'
+
+# 4. Review the rules BEFORE enabling
+sudo ufw show added
+```
+
+### The Docker gotcha
+
+When Docker publishes a port, it writes its OWN nftables/iptables rules directly into the `DOCKER` chain, which sits _in front of_ UFW's rules.
+Even if UFW rules are set to default-deny inbound, Docker-published ports stay reachable because Docker's rules are evaluated first
+
+Will properly solve this in Phase 0 when you add Nginx Proxy Manager — the pattern becomes "bind Docker services to localhost, expose only through the reverse proxy on 80/443." That's the real fix. For now, awareness is enough.
+
+### Safe-enable procedure
+UFW can lock you out the same way a bad sshd config can, so the order is non-negotiable:
+
+1. Set default policies (deny in, allow out) — but don't enable yet
+2. Add the allow rules **first**, especially SSH (`ufw limit 22/tcp`)
+3. Review with `sudo ufw show added` before enabling
+4. `sudo ufw enable` while keeping the current SSH session open
+5. Test a **fresh** SSH connection from a second terminal before closing the first
+
+If the new connection fails, the still-open session is the rope back in: `sudo ufw disable` and debug. Never enable a firewall and immediately close your only session.
+
+### Verify command
+`ufw status verbose`
+
+
+> Note: both fail2ban and UFW enforce through nftables. They coexist without conflict — UFW manages the base firewall policy, fail2ban dynamically inserts ban rules. No special integration needed.
+
+---
+
+## Status: Complete
+
+This hardening pass is done. All four layers in place:
+- [x] SSH key-only auth, password + root login disabled
+- [x] fail2ban (24h ban, LAN + Tailscale whitelisted)
+- [x] UFW default-deny inbound, SSH rate-limited
+
+### Future hardening (later phases)
+- [ ] Solve the Docker/UFW bypass properly — bind containers to localhost, expose via reverse proxy (Phase 0, with NPM)
+- [ ] Automated off-host backups of configs (Phase 0)
+- [ ] Consider SSH cert-based auth or 2FA (later, optional)
+
+
 
 ## References
 - `man sshd_config` — full directive reference
 - https://www.ssh.com/academy/ssh/public-key-authentication
+- `man jail.conf` — fail2ban jail configuration
+- https://help.ubuntu.com/community/UFW — UFW documentation
