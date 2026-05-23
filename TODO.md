@@ -23,7 +23,7 @@ Each must justify its existence in one sentence before deployment.
 ## Phase 0 — Hardening Tasks
 - [x] VM SSH hardening (disable root, key-only auth, fail2ban) — documented in security/vm-hardening.md
 - [x] UFW firewall rules on the VM
-- [~] Automated backup script (rsync/tar + cron) for Docker volumes — IN PROGRESS
+- [x] Automated backup script (tar + cron) for Docker volumes — tested restore, documented in scripts/backups.md
 - [ ] Migrate Navidrome script (`musiq.py`) — was deleted, may rebuild later
 
 ## Storage / Infrastructure (future, not urgent)

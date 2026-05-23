@@ -16,6 +16,8 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 ## Recent Changes
 
+- **2026-05:** Hardened the VM — SSH key-only auth, fail2ban, UFW; documented in `security/vm-hardening.md`
+- **2026-05:** Automated backups — daily Docker volume + config backups to HDD, restore-tested; `scripts/backup-homelab.sh`
 - **2026-05:** Migrated Audiobookshelf from hand-typed `docker run` → declarative `docker-compose.yml` with named volumes, healthcheck, and custom bridge network
 - **2026-05:** Adopted GitOps workflow — repo as source of truth, VM pulls to deploy
 - **2026-05:** Removed deprecated Navidrome service (to be revisited)
@@ -36,6 +38,10 @@ This is not a production environment. It is a learning-focused lab shaped by act
 - Edits happen on host desktop, deploys happen on VM via `git pull`
 - All services run as code (compose files in repo), not hand-typed commands
 
+**Security & resilience:**
+- VM hardened: SSH key-only, no password/root login, fail2ban, UFW default-deny
+- Daily automated backups to HDD, restore-tested
+
 ---
 
 ## Repository Structure
@@ -46,7 +52,11 @@ homelab/
 ├── TODO.md
 ├── .gitignore
 ├── workstation-setup.md
+├── scripts/
+│   ├── backup-homelab.sh
+│   └── backups.md
 ├── security/
+│   ├── vm-hardening.md
 │   └── soc-lab/
 │       ├── README.md
 │       └── [screenshots: Terminal, Wazuh, WazuhEvents]
@@ -91,7 +101,9 @@ The repo is the source of truth, not the running services.
 - The VM clones the same repo and pulls to deploy (`git pull` + `docker compose up -d`)
 - Nothing is configured directly on the VM — if it's not in Git, it doesn't exist
 
-Authentication is via SSH keys, not HTTPS. Future Phase 3 introduces proper CI/CD.
+**Security posture:**
+- VM hardened: SSH key-only, no password/root login, fail2ban, UFW
+- Daily automated backups to HDD (restore-tested)
 
 ---
 
@@ -122,7 +134,7 @@ A 5-phase plan, gated by exit checkpoints rather than time. Detailed phase check
 **Goal:** Build deep Docker Compose + Linux administration fluency before adding any new technology.
 
 - **Adding:** Nginx Proxy Manager, Pi-hole, WireGuard, Uptime Kuma, Portainer
-- **Hardening:** SSH key-only auth, UFW, automated backups via rsync + cron
+- **Hardening:** SSH key-only auth, UFW, automated backups via tar + cron
 - **Exit:** Every service in Compose, in Git, with healthchecks. Backups automated and tested. Can recover any container without Googling. Can explain the entire setup to someone else without notes.
 
 ### Phase 1 — Infrastructure Mindset
