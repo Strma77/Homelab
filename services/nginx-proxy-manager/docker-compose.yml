@@ -1,0 +1,30 @@
+services:
+    nginx-proxy-manager:
+        image: jc21/nginx-proxy-manager:latest
+        container_name: nginx-manager
+        ports:
+            - "80:80"
+            - "443:443"
+            - "81:81"
+        restart: unless-stopped
+        networks:
+            - homelab
+        healthcheck:
+          test: ["CMD", "curl", "-f", "-s", "http://localhost:81"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 40s
+        volumes:
+            - nginx-manager_data:/data
+            - nginx-manager_CertStorage:/etc/letsencrypt
+
+networks:
+    homelab:
+        external: true
+
+volumes:
+    nginx-manager_data:
+        name: nginx-manager_data
+    nginx-manager_CertStorage:
+        name: nginx-manager_CertStorage
