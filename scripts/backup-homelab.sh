@@ -14,7 +14,8 @@ LOGFILE="${BACKUP_DIR}/backup.log"
 
 # Docker volume data paths (root-owned)
 VOLUMES="/var/lib/docker/volumes/audiobookshelf_config/_data \
-         /var/lib/docker/volumes/audiobookshelf_metadata/_data"
+         /var/lib/docker/volumes/audiobookshelf_metadata/_data \
+         /var/lib/docker/volumes/nginx-manager_data/_data"
 
 # System configs not in Git
 CONFIGS="/etc/ssh/sshd_config.d/00-hardening.conf \
@@ -28,6 +29,7 @@ log "=== Backup started ==="
 
 # Always restart the container on exit, even if backup fails
 trap 'docker start audiobookshelf 2>/dev/null || true' EXIT
+trap 'docker start nginx-manager 2>/dev/null || true' EXIT
 
 # Stop the container
 log "Stopping audiobookshelf..."
