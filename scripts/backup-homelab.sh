@@ -29,7 +29,6 @@ log "=== Backup started ==="
 
 # Always restart the container on exit, even if backup fails
 trap 'docker start audiobookshelf 2>/dev/null || true' EXIT
-trap 'docker start nginx-manager 2>/dev/null || true' EXIT
 
 # Stop the container
 log "Stopping audiobookshelf..."
