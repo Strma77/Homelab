@@ -8,14 +8,17 @@
 ---
 
 ## What gets backed up
-- Audiobookshelf config 
-- Audiobookshelf metadata
-- sshd_config.d/
-- jail.local
+- Audiobookshelf config + metadata volumes
+- NPM data volume (proxy host rules, SQLite, keys)
+- Pi-hole config volume (DNS records, settings, admin pw hash)
+- sshd_config.d/00-hardening.conf
+- /etc/fail2ban/jail.local
 
 ## What does NOT get backed up
 - **Compose files** — already version-controlled in this Git repo
 - **Audiobook media** — lives on the host, not the VM; large and re-downloadable
+- **NPM certs volume** — empty until SSL in Phase 3
+- **Pi-hole dnsmasq volume** — empty unless custom overrides added
 
 ---
 
