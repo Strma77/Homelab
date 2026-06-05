@@ -309,6 +309,20 @@ If the new connection fails, the still-open session is the rope back in: `sudo u
 ### Verify command
 `ufw status verbose`
 
+### Service-specific UFW rules
+
+| Service | Port(s) | Rule | Enforced by UFW? |
+|---------|---------|------|-------------------|
+| SSH | 22/tcp | `ufw limit` (rate-limited) | ✅ Yes — host service |
+| Pi-hole DNS | 53/tcp + 53/udp | `ufw allow` | ✅ Yes — UDP DNS traffic goes through OS network stack |
+| Audiobookshelf | 13378/tcp | `ufw allow` | 🟡 Bypassed (Docker-published port) |
+| NPM HTTP | 80/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
+| NPM HTTPS | 443/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
+| NPM Admin | 81/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
+
+The Docker-published ports (13378, 80, 81, 443) are technically reachable regardless of UFW because Docker writes its own nftables rules ahead of UFW's. Listed for documentation only. 
+The proper fix is to bind container ports to localhost and expose services only through NPM by hostname — pending refactor in late Phase 0 / Phase 1.
+
 
 > Note: both fail2ban and UFW enforce through nftables. They coexist without conflict — UFW manages the base firewall policy, fail2ban dynamically inserts ban rules. No special integration needed.
 
