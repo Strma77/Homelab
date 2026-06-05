@@ -22,6 +22,9 @@ This is not a production environment. It is a learning-focused lab shaped by act
 - **2026-05:** Adopted GitOps workflow — repo as source of truth, VM pulls to deploy
 - **2026-05:** Removed deprecated Navidrome service (to be revisited)
 - **2026-03:** SOC lab built and operational with attack/detect loop verified
+- **2026-06:** Pi-hole DNS deployed (on-demand only — VM is intermittent; becomes always-on in Phase 1)
+- **2026-06:** Nginx Proxy Manager deployed — hostname-based routing for homelab services
+- **2026-06:** Backups extended to include NPM + Pi-hole config volumes
 
 ---
 
@@ -32,6 +35,8 @@ This is not a production environment. It is a learning-focused lab shaped by act
 **Live services:**
 - Audiobookshelf — audiobook server, Docker Compose, named volumes, HTTP healthcheck
 - SOC Lab — Wazuh + Kali + Metasploitable2, isolated VirtualBox network
+- Nginx Proxy Manager — reverse proxy, routes by hostname, admin on :81
+- Pi-hole — local DNS + ad-blocking (on-demand, not daily-driver DNS yet)
 
 **Workflow:**
 - Source of truth: this Git repo
@@ -61,9 +66,16 @@ homelab/
 │       ├── README.md
 │       └── [screenshots: Terminal, Wazuh, WazuhEvents]
 └── services/
-    └── audiobookshelf/
-        ├── Audiobookshelf.md
-        └── docker-compose.yml
+    ├── audiobookshelf/
+    │   ├── Audiobookshelf.md
+    │   └── docker-compose.yml
+    ├── nginx-proxy-manager/
+    │   ├── NginxProxyManager.md
+    │   └── docker-compose.yml
+    └── pihole/
+        ├── Pihole.md
+        ├── docker-compose.yml
+        └── .env
 ```
 
 ---
