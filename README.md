@@ -16,15 +16,15 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 ## Recent Changes
 
+- **2026-06:** Pi-hole DNS deployed (on-demand only — VM is intermittent; becomes always-on in Phase 1)
+- **2026-06:** Nginx Proxy Manager deployed — hostname-based routing for homelab services
+- **2026-06:** Backups extended to include NPM + Pi-hole config volumes
 - **2026-05:** Hardened the VM — SSH key-only auth, fail2ban, UFW; documented in `security/vm-hardening.md`
 - **2026-05:** Automated backups — daily Docker volume + config backups to HDD, restore-tested; `scripts/backup-homelab.sh`
 - **2026-05:** Migrated Audiobookshelf from hand-typed `docker run` → declarative `docker-compose.yml` with named volumes, healthcheck, and custom bridge network
 - **2026-05:** Adopted GitOps workflow — repo as source of truth, VM pulls to deploy
 - **2026-05:** Removed deprecated Navidrome service (to be revisited)
 - **2026-03:** SOC lab built and operational with attack/detect loop verified
-- **2026-06:** Pi-hole DNS deployed (on-demand only — VM is intermittent; becomes always-on in Phase 1)
-- **2026-06:** Nginx Proxy Manager deployed — hostname-based routing for homelab services
-- **2026-06:** Backups extended to include NPM + Pi-hole config volumes
 
 ---
 
@@ -74,8 +74,8 @@ homelab/
     │   └── docker-compose.yml
     └── pihole/
         ├── Pihole.md
-        ├── docker-compose.yml
-        └── .env
+        └── docker-compose.yml
+        
 ```
 
 ---
@@ -93,6 +93,18 @@ Self-hosted replacement for Audible. Personal audiobook library accessible from 
 Home-built Security Operations Center lab using Wazuh SIEM, Kali Linux and Metasploitable2. Simulates real attack scenarios and detects them using MITRE ATT&CK framework mapping.
 
 → [SOC Lab](security/soc-lab/README.md)
+
+### Nginx Proxy Manager
+
+Reverse proxy routing homelab services by hostname instead of `IP:port`. Web admin on `:81`, reachable on the LAN.
+
+→ [NginxProxyManager.md](services/nginx-proxy-manager/NginxProxyManager.md)
+
+### Pi-hole
+
+Local DNS server + ad/tracker blocking. Resolves `.home` hostnames for the reverse proxy. Currently on-demand only (VM is intermittent); becomes daily-driver DNS in Phase 1.
+
+→ [Pihole.md](services/pihole/Pihole.md)
 
 ---
 
