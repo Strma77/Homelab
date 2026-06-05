@@ -1,0 +1,30 @@
+services:
+    pihole:
+        image: pihole/pihole:latest
+        container_name: pihole
+        ports:
+            - "192.168.100.50:53:53/tcp"
+            - "192.168.100.50:53:53/udp"
+            - "8888:80"
+        restart: unless-stopped
+        networks:
+            - homelab
+        environment:
+            - TZ=Europe/Zagreb
+            # Pi-hole v6+ uses FTLCONF_webserver_api_password, not the old WEBPASSWORD.
+            # Read on first boot only; password is then persisted in pihole_config volume.
+            # Change later via Settings → Webserver and API → Password.
+            - FTLCONF_webserver_api_password=${WEBPASSWORD}
+        volumes:
+            - pihole_config:/etc/pihole
+            - pihole_dnsmasq:/etc/dnsmasq.d
+
+networks:
+    homelab:
+        external: true
+
+volumes:
+    pihole_config:
+        name: pihole_config
+    pihole_dnsmasq:
+        name: pihole_dnsmasq
