@@ -1,0 +1,25 @@
+services:
+    uptime-kuma:
+        image: louislam/uptime-kuma:latest
+        container_name: uptime-kuma
+        ports:
+            - "3001:3001"
+        restart: unless-stopped
+        networks:
+            - homelab
+        healthcheck:
+            test: ["CMD-SHELL", "node /app/extra/healthcheck.js"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        volumes:
+            - uptime-kuma_data:/app/data
+
+networks:
+    homelab:
+        external: true
+
+volumes:
+    uptime-kuma_data:
+        name: uptime-kuma_data
