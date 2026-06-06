@@ -293,3 +293,28 @@ See `scripts/backups.md`.
 * Created first local DNS record (`audiobookshelf.home → 192.168.100.50`)
 * Verified end-to-end resolution from desktop
 * Chose to revert desktop DNS to automatic and use Pi-hole on demand only until VM is 24/7
+
+## Break/fix drill — 2026-06-06
+
+Deliberately stopped the Pi-hole container to validate the
+monitoring + recovery loop on first real exercise.
+
+**Detection (~60s):**
+- Pi-hole Web monitor → DOWN, error: `connect EHOSTUNREACH 172.18.0.4:80`
+- Pi-hole DNS Resolution → DOWN, error: `queryA ETIMEOUT audiobookshelf.home`
+- All other monitors remained UP, correctly isolating the failure
+  scope to Pi-hole alone
+- Telegram alert delivered to phone within ~1 minute of the stop
+
+**Recovery:**
+- `docker start pihole` — container went through health-starting
+  → healthy, monitors flipped back to UP within ~90s
+- Telegram delivered recovery alerts
+
+**Total time DOWN → UP:** ~2 minutes.
+
+**What the dual error messages confirm:** the two monitors hit
+different layers (network reachability and DNS query response),
+so the alert pattern tells you the whole container died, not just
+one of its services. Useful diagnostic signal embedded in the
+monitoring design.
