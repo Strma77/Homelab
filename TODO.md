@@ -17,7 +17,13 @@ Each must justify its existence in one sentence before deployment.
 - [x] Nginx Proxy Manager (reverse proxy + SSL)
 - [x] Pi-hole (local DNS so services get hostnames)
 - [ ] Uptime Kuma (alerting on service outages)
-- [ ] WireGuard (replace Tailscale dependency — debatable, decide later)
+- [~] WireGuard — **deferred**. Tailscale already provides secure
+      remote access from any device, works behind the ISP-locked
+      ONT (which would block WireGuard's required port forwarding).
+      Deploying WireGuard now would be tutorial addiction — no
+      problem to solve. Revisit if Phase 3 ever needs a self-hosted
+      VPN endpoint (e.g. for split-tunnel routing or to remove the
+      Tailscale dependency for portfolio purposes).
 - [ ] Portainer (container observability UI)
 
 ## Phase 0 — Hardening Tasks
