@@ -319,6 +319,7 @@ If the new connection fails, the still-open session is the rope back in: `sudo u
 | NPM HTTP | 80/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
 | NPM HTTPS | 443/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
 | NPM Admin | 81/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
+| Uptime Kuma | 3001/tcp | `ufw allow` (documents intent) | 🟡 Bypassed (Docker) |
 
 The Docker-published ports (13378, 80, 81, 443) are technically reachable regardless of UFW because Docker writes its own nftables rules ahead of UFW's. Listed for documentation only. 
 The proper fix is to bind container ports to localhost and expose services only through NPM by hostname — pending refactor in late Phase 0 / Phase 1.
