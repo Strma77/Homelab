@@ -1,0 +1,28 @@
+services:
+    portainer:
+        image: portainer/portainer-ce:latest
+        container_name: portainer
+        ports:
+            - "9000:9000"
+            - "9443:9443"
+        restart: unless-stopped
+        networks:
+            - homelab
+        healthcheck:
+              test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000"]
+              interval: 30s
+              timeout: 10s
+              retries: 3
+              start_period: 30s
+        volumes:
+            - portainer_data:/data
+            - /var/run/docker.sock:/var/run/docker.sock
+
+
+networks:
+    homelab:
+        external: true
+
+volumes:
+    portainer_data:
+        name: portainer_data
