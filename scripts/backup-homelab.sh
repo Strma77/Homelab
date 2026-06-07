@@ -16,7 +16,10 @@ LOGFILE="${BACKUP_DIR}/backup.log"
 VOLUMES="/var/lib/docker/volumes/audiobookshelf_config/_data \
          /var/lib/docker/volumes/audiobookshelf_metadata/_data \
          /var/lib/docker/volumes/nginx-manager_data/_data \
-         /var/lib/docker/volumes/pihole_config/_data"
+         /var/lib/docker/volumes/pihole_config/_data \
+         /var/lib/docker/volumes/portainer_data/_data \
+         /var/lib/docker/volumes/homarr_configs/_data \
+         /var/lib/docker/volumes/homarr_data/_data"
 
 # System configs not in Git
 CONFIGS="/etc/ssh/sshd_config.d/00-hardening.conf \

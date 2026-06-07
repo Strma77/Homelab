@@ -1,0 +1,25 @@
+services:
+    homarr:
+        image: ghcr.io/ajnart/homarr:latest
+        container_name: homarr
+        ports:
+            - "7575:7575"
+        restart: unless-stopped
+        networks:
+            - homelab
+        volumes:
+            - homarr_configs:/app/data/configs
+            - homarr_data:/data
+            - homarr_icons:/app/public/icons
+
+networks:
+    homelab:
+        external: true
+
+volumes:
+    homarr_configs:
+        name: homarr_configs
+    homarr_data:
+        name: homarr_data
+    homarr_icons:
+        name: homarr_icons
