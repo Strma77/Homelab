@@ -16,9 +16,14 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 ## Recent Changes
 
+- **2026-06:** Network topology diagram added — closes the docs/network-map exit checkpoint
+- **2026-06:** Repo restructure — TODO.md and workstation-setup.md moved into `docs/`
+- **2026-06:** Homarr dashboard deployed — single front door with live status via Uptime Kuma integration
+- **2026-06:** Portainer deployed — visual UI for the container stack
+- **2026-06:** Uptime Kuma deployed — 7 monitors (HTTP, DNS, Ping), Telegram alerts, break/fix drill executed and documented
 - **2026-06:** Pi-hole DNS deployed (on-demand only — VM is intermittent; becomes always-on in Phase 1)
 - **2026-06:** Nginx Proxy Manager deployed — hostname-based routing for homelab services
-- **2026-06:** Backups extended to include NPM + Pi-hole config volumes
+- **2026-06:** Backups extended to include NPM, Pi-hole, Portainer, and Homarr config volumes
 - **2026-05:** Hardened the VM — SSH key-only auth, fail2ban, UFW; documented in `security/vm-hardening.md`
 - **2026-05:** Automated backups — daily Docker volume + config backups to HDD, restore-tested; `scripts/backup-homelab.sh`
 - **2026-05:** Migrated Audiobookshelf from hand-typed `docker run` → declarative `docker-compose.yml` with named volumes, healthcheck, and custom bridge network
@@ -30,13 +35,16 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 ## Current State
 
-**Phase:** 0 — Foundation Hardening (in progress)
+**Phase:** 0 — Foundation Hardening *(nearing close)*
 
 **Live services:**
 - Audiobookshelf — audiobook server, Docker Compose, named volumes, HTTP healthcheck
-- SOC Lab — Wazuh + Kali + Metasploitable2, isolated VirtualBox network
-- Nginx Proxy Manager — reverse proxy, routes by hostname, admin on :81
+- Nginx Proxy Manager — reverse proxy, routes by hostname, admin on `:81`
 - Pi-hole — local DNS + ad-blocking (on-demand, not daily-driver DNS yet)
+- Uptime Kuma — 7 monitors + Telegram alerts; break/fix drill verified
+- Portainer — visual UI for container management
+- Homarr — dashboard with live Uptime Kuma status integration
+- SOC Lab — Wazuh + Kali + Metasploitable2, isolated VirtualBox network
 
 **Workflow:**
 - Source of truth: this Git repo
@@ -45,18 +53,21 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 **Security & resilience:**
 - VM hardened: SSH key-only, no password/root login, fail2ban, UFW default-deny
-- Daily automated backups to HDD, restore-tested
+- Daily automated backups to HDD, restore-tested + SQLite integrity verified
+- Break/fix drill executed: container stopped, alert fired via Telegram, recovered, documented
 
 ---
 
 ## Repository Structure
-
 ```
 homelab/
 ├── README.md
-├── TODO.md
 ├── .gitignore
-├── workstation-setup.md
+├── docs/
+│   ├── TODO.md
+│   ├── workstation-setup.md
+│   ├── HomeLab-Network-Topology.png
+│   └── HomeLab-NetworkTopology.excalidraw
 ├── scripts/
 │   ├── backup-homelab.sh
 │   └── backups.md
@@ -72,11 +83,30 @@ homelab/
     ├── nginx-proxy-manager/
     │   ├── NginxProxyManager.md
     │   └── docker-compose.yml
-    └── pihole/
-        ├── Pihole.md
-        └── docker-compose.yml
-        
+    ├── pihole/
+    │   ├── Pihole.md
+    │   ├── docker-compose.yml
+    │   └── .env                          # gitignored — WEBPASSWORD lives here
+    ├── uptime-kuma/
+    │   ├── docker-compose.yml
+    │   └── screenshots/
+    │       ├── dashboard-pihole-outage.png
+    │       └── telegram-alert.jpeg
+    ├── portainer/
+    │   └── docker-compose.yml
+    └── homarr/
+        ├── docker-compose.yml
+        └── screenshots/
+            └── dashboard.png
 ```
+
+---
+
+## Network Topology
+
+![Homelab network topology](docs/HomeLab-Network-Topology.png)
+
+Source file: [docs/HomeLab-NetworkTopology.excalidraw](docs/HomeLab-NetworkTopology.excalidraw)
 
 ---
 
@@ -87,12 +117,6 @@ homelab/
 Self-hosted replacement for Audible. Personal audiobook library accessible from any device via Tailscale, no public exposure required.
 
 → [Audiobookshelf.md](services/audiobookshelf/Audiobookshelf.md)
-
-### SOC Security Lab
-
-Home-built Security Operations Center lab using Wazuh SIEM, Kali Linux and Metasploitable2. Simulates real attack scenarios and detects them using MITRE ATT&CK framework mapping.
-
-→ [SOC Lab](security/soc-lab/README.md)
 
 ### Nginx Proxy Manager
 
@@ -106,13 +130,31 @@ Local DNS server + ad/tracker blocking. Resolves `.home` hostnames for the rever
 
 → [Pihole.md](services/pihole/Pihole.md)
 
+### Uptime Kuma
+
+Monitoring + alerting. 7 monitors covering each service, DNS resolution, the host, and an external dependency. Sends alerts to Telegram. Break/fix drill executed and documented in the Pi-hole writeup.
+
+### Portainer
+
+Visual container management UI. Useful for inspecting state and demoing the stack. CLI complement, not replacement.
+
+### Homarr
+
+Single dashboard landing page for the homelab. Integrates with Uptime Kuma to show live service status per tile.
+
+### SOC Security Lab
+
+Home-built Security Operations Center lab using Wazuh SIEM, Kali Linux and Metasploitable2. Simulates real attack scenarios and detects them using MITRE ATT&CK framework mapping.
+
+→ [SOC Lab](security/soc-lab/README.md)
+
 ---
 
 ## Infrastructure
 
 All services run inside a single Ubuntu Server 24.04.4 LTS VM on VirtualBox, connected to the LAN via a bridged network adapter. Remote access is handled by Tailscale mesh VPN — no port forwarding required.
 
-→ [workstation-setup.md](workstation-setup.md)
+→ [workstation-setup.md](docs/workstation-setup.md)
 
 ---
 
@@ -124,10 +166,6 @@ The repo is the source of truth, not the running services.
 - Commits get pushed to GitHub
 - The VM clones the same repo and pulls to deploy (`git pull` + `docker compose up -d`)
 - Nothing is configured directly on the VM — if it's not in Git, it doesn't exist
-
-**Security posture:**
-- VM hardened: SSH key-only, no password/root login, fail2ban, UFW
-- Daily automated backups to HDD (restore-tested)
 
 ---
 
@@ -147,6 +185,7 @@ The repo is the source of truth, not the running services.
 - Heavy cloud focus (AWS/Azure) — local infrastructure pain teaches WHY cloud exists; learn local first
 - Terraform before Ansible — Ansible is simpler and more immediately useful
 - Certifications before built projects — certs after skills, not instead of skills
+- WireGuard — Tailscale already covers secure remote access; deploying WireGuard now would be tutorial addiction
 
 ---
 
@@ -154,11 +193,12 @@ The repo is the source of truth, not the running services.
 
 A 5-phase plan, gated by exit checkpoints rather than time. Detailed phase checklists at [strma77.github.io](https://strma77.github.io/).
 
-### Phase 0 — Foundation Hardening *(in progress)*
+### Phase 0 — Foundation Hardening *(nearing close)*
 **Goal:** Build deep Docker Compose + Linux administration fluency before adding any new technology.
 
-- **Adding:** Nginx Proxy Manager, Pi-hole, WireGuard, Uptime Kuma, Portainer
-- **Hardening:** SSH key-only auth, UFW, automated backups via tar + cron
+- **Adding:** Nginx Proxy Manager, Pi-hole, Uptime Kuma, Portainer, Homarr ✅
+- **Hardening:** SSH key-only auth, UFW, automated backups via tar + cron ✅
+- **Remaining:** localhost-bind refactor (close the documented Docker/UFW bypass gap)
 - **Exit:** Every service in Compose, in Git, with healthchecks. Backups automated and tested. Can recover any container without Googling. Can explain the entire setup to someone else without notes.
 
 ### Phase 1 — Infrastructure Mindset
@@ -166,7 +206,7 @@ A 5-phase plan, gated by exit checkpoints rather than time. Detailed phase check
 
 - **Adding:** Proxmox (replaces VirtualBox), pfSense/OPNsense as virtual router, VLAN segmentation
 - **Migrating:** All Phase 0 services into Proxmox VMs/LXC containers across segmented networks
-- **Exit:** New VM from template in under 5 minutes. VLANs actually isolate traffic. SOC lab on its own isolated VLAN. Network topology diagram exists and matches reality.
+- **Exit:** New VM from template in under 5 minutes. VLANs actually isolate traffic. SOC lab on its own isolated VLAN. Network topology diagram updates to reflect Proxmox layout.
 
 ### Phase 2 — Monitoring + Automation
 **Goal:** Stop being the manual layer in your own infrastructure. Get observability and start automating the repetitive.
