@@ -165,6 +165,20 @@ Direct access via `http://192.168.100.50:13378` was removed in the localhost-bin
 
 For initial library setup, do it after NPM is configured to route `audiobookshelf.home` and your DNS knows where that hostname lives (Pi-hole or `/etc/hosts`).
 
+## Tailscale access after the localhost-bind refactor
+
+The localhost-bind refactor removed direct `100.x.x.x:13378` access from Tailscale clients. To preserve hostname access (`audiobookshelf.home`) over Tailscale, the VM was configured to advertise the LAN subnet:
+
+```bash
+sudo tailscale up --advertise-routes=192.168.100.0/24 --accept-dns=false
+```
+
+Route approved in the Tailscale admin console. Combined with split DNS (`*.home` queries forwarded to Pi-hole at `192.168.100.50`), Tailscale clients can resolve and reach homelab services by hostname when the VM is online.
+
+**Architectural ceiling:** this entire chain depends on the VM being on. When the VM is off, Pi-hole is off, DNS for `.home` fails, and the service is unreachable anyway. Phase 1 (Proxmox + always-on host) is the proper fix. For now, mobile use should download content locally for offline access.
+
+IPv4 + IPv6 forwarding persisted in `/etc/sysctl.d/99-tailscale.conf`.
+
 ### Mobile / remote access
 
 - On the LAN: `http://audiobookshelf.home` (requires DNS pointing at the VM)
