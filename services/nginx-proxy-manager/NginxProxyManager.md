@@ -239,7 +239,29 @@ Then:
 * Backend apps are unreachable except through NPM
 * NPM becomes the security boundary, not just a routing convenience
 
-Planned for late Phase 0.
+### Status: implemented for Audiobookshelf (2026-06)
+
+The pattern was applied to Audiobookshelf in June 2026:
+
+```text
+audiobookshelf
+   │
+   ▼
+127.0.0.1:13378  (loopback only — no LAN reachability)
+   │
+   ▼ via the homelab Docker network (container name lookup)
+   │
+NPM (port 80)
+   │
+   ▼
+Clients (hostname: audiobookshelf.home)
+```
+
+Result: external LAN access to Audiobookshelf is no longer possible by port. UFW's enforcement actually protects this service now — there's no Docker bypass to undermine it because Docker isn't binding to any externally-reachable interface. NPM is the genuine security boundary, not just a routing convenience.
+
+The pattern can be adopted incrementally for other user-facing services. Admin interfaces (NPM `:81`, Portainer `:9000`, Pi-hole `:8888`) are deliberately left directly accessible as break-glass — if NPM itself or the DNS layer is broken, you want to reach the admin UIs without depending on the broken thing. That's a deliberate trade-off, not an oversight.
+
+See `security/vm-hardening.md` for the per-service UFW + binding table.
 
 ---
 

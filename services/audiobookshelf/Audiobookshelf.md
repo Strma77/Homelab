@@ -153,18 +153,22 @@ See `docker-compose.yml` in this directory for the full definition.
 
 ---
 
-### Initial Setup
+## Access
 
-1. Open `http://192.168.100.50:13378` in browser
-2. Create admin account
-3. Add library → set folder to `/audiobooks` → scan
-4. For remote access use `http://100.x.x.x:13378` (Tailscale IP)
+The service is reachable only through Nginx Proxy Manager by hostname:
 
-### Mobile App
+```text
+http://audiobookshelf.home
+```
 
-- Install Audiobookshelf app
-- Add server via Tailscale IP: `http://100.x.x.x:13378`
-- Ensure Tailscale is active on the device before connecting
+Direct access via `http://192.168.100.50:13378` was removed in the localhost-bind refactor (see History). The container's port 13378 is now bound to `127.0.0.1` on the VM, so only NPM — which talks to the container by name on the `homelab` Docker network — can reach it. External LAN devices have no path to the container directly.
+
+For initial library setup, do it after NPM is configured to route `audiobookshelf.home` and your DNS knows where that hostname lives (Pi-hole or `/etc/hosts`).
+
+### Mobile / remote access
+
+- On the LAN: `http://audiobookshelf.home` (requires DNS pointing at the VM)
+- Via Tailscale: `http://100.x.x.x:13378` no longer works after the refactor; use `http://audiobookshelf.home` once Tailscale clients resolve `.home` (Phase 1 work — configure Tailscale MagicDNS or per-device DNS)
 
 ---
 
@@ -224,6 +228,25 @@ See `docker-compose.yml` in this directory for the full definition.
 ---
 
 ## History
+
+### 2026-06 — Localhost-bind refactor
+
+Closed the documented Docker/UFW bypass for this service. Container port binding changed from `0.0.0.0:13378:80` to `127.0.0.1:13378:80` in the compose file. External LAN clients can no longer reach Audiobookshelf directly by `IP:port`; the only path in is now through Nginx Proxy Manager by hostname.
+
+The refactor exploits a property of the `homelab` Docker network we built earlier: NPM and Audiobookshelf both live on it and resolve each other by container name. So even with the host port bound to loopback only, NPM still reaches the container on `audiobookshelf:80` over the bridge network — no host port hop required.
+
+**Verified end-to-end:** direct `192.168.100.50:13378` access fails with connection refused from both the VM and a separate LAN client. Hostname access via `audiobookshelf.home` continues to serve content through NPM. Uptime Kuma's HTTP monitor (which also uses container-name routing on the homelab network) stayed green through the container recreate.
+
+UFW rule `13378/tcp ALLOW` was removed since the port is no longer externally exposed and the rule documented nothing real.
+
+Compose diff:
+```text
+- "13378:80"
++ "127.0.0.1:13378:80"
+```
+
+This is the pattern other user-facing services (Uptime Kuma, Homarr) can adopt incrementally. Admin tooling (Pi-hole admin UI, NPM admin, Portainer) is deliberately left directly accessible as break-glass for diagnosing outages of the routing or DNS layers themselves.
+
 
 ### 2026-05-09 — Migrate from `docker run` to `docker-compose.yml`
 **Why:** Original deployment was a hand-typed `docker run` invocation copied from documentation without full understanding. Not version-controllable, not reproducible, no healthcheck, bind mounts everywhere.

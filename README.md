@@ -16,6 +16,7 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 ## Recent Changes
 
+- **2026-06:** Localhost-bind refactor for Audiobookshelf — port now bound to `127.0.0.1` only, accessible exclusively via NPM by hostname. Closes the documented Docker/UFW bypass for this service. Pattern proven; remaining user-facing services can adopt incrementally.
 - **2026-06:** Network topology diagram added — closes the docs/network-map exit checkpoint
 - **2026-06:** Repo restructure — TODO.md and workstation-setup.md moved into `docs/`
 - **2026-06:** Homarr dashboard deployed — single front door with live status via Uptime Kuma integration
@@ -35,7 +36,7 @@ This is not a production environment. It is a learning-focused lab shaped by act
 
 ## Current State
 
-**Phase:** 0 — Foundation Hardening *(nearing close)*
+**Phase:** 0 — Foundation Hardening *(closing — final docs and roadmap sync remaining)*
 
 **Live services:**
 - Audiobookshelf — audiobook server, Docker Compose, named volumes, HTTP healthcheck
