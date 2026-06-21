@@ -215,8 +215,7 @@ Two SSH sessions are kept open while modifying SSH settings: one active working 
 ### Why `ufw limit` vs `allow` for SSH
 `allow` opens the port unconditionally. `limit` opens it but adds rate-limiting: if a single IP makes 6 or more connection attempts within 30 seconds, UFW temporarily blocks it. This is a lightweight complement to fail2ban — they work at different layers. UFW `limit` throttles connection *rate* (how often you can knock on the door); fail2ban bans on *auth failures* (how many times you guess wrong). Using `limit` on port 22 adds friction to brute-force attempts for free.
 
-**Why this matters:** enabling UFW does NOT protect your Docker-published ports (like 13378). Don't assume "UFW is on, everything's firewalled." UFW protects host-level services (SSH); Docker manages its own exposure. Awareness now, real fix in Phase 0 with the reverse proxy.
----
+**Why this matters:** enabling UFW does NOT protect your Docker-published ports. Don't assume "UFW is on, everything's firewalled." UFW protects host-level services (SSH); Docker manages its own exposure. The localhost-bind refactor (see UFW table) is the real fix — applied to Audiobookshelf in 2026-06.---
 
 ## Fail2ban
 
@@ -273,28 +272,24 @@ Allow outbound - stays open because VM needs to reach the internet for updates, 
 ### Rules
 
 ```bash
-# 1. Set default policies (deny incoming, allow outgoing) — NOT enabled yet
+# Defaults
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
-# 2. Allow SSH FIRST — before enabling. Use 'limit' for built-in rate limiting.
+# SSH FIRST — before enabling
 sudo ufw limit 22/tcp comment 'SSH rate-limited'
 
-# 3. (Optional) explicitly allow Audiobookshelf — even though Docker bypasses UFW,
-#    adding the rule documents intent and covers the case if Docker's behavior changes
-sudo ufw allow 13378/tcp comment 'Audiobookshelf'
+# Then add per-service rules from the Service-specific UFW rules table below
 
-# 4. Review the rules BEFORE enabling
+# Review before enabling
 sudo ufw show added
 ```
 
 ### The Docker gotcha
 
-When Docker publishes a port, it writes its OWN nftables/iptables rules directly into the `DOCKER` chain, which sits _in front of_ UFW's rules.
-Even if UFW rules are set to default-deny inbound, Docker-published ports stay reachable because Docker's rules are evaluated first
+When Docker publishes a port, it writes its OWN nftables/iptables rules directly into the `DOCKER` chain, which sits *in front of* UFW's rules. Default-deny inbound in UFW does not stop Docker-published ports — Docker's rules are evaluated first.
 
-Will properly solve this in Phase 0 when you add Nginx Proxy Manager — the pattern becomes "bind Docker services to localhost, expose only through the reverse proxy on 80/443." That's the real fix. For now, awareness is enough.
-
+The fix is to bind container ports to `127.0.0.1` instead of `0.0.0.0`, so Docker's rules can't expose them externally — and the only path in becomes the reverse proxy. Applied to Audiobookshelf in 2026-06 (see Service-specific UFW rules table). The pattern is proven and can be adopted incrementally for the other user-facing services. Admin interfaces are deliberately left directly accessible as break-glass for outage debugging.
 ### Safe-enable procedure
 UFW can lock you out the same way a bad sshd config can, so the order is non-negotiable:
 
@@ -311,21 +306,22 @@ If the new connection fails, the still-open session is the rope back in: `sudo u
 
 ### Service-specific UFW rules
 
-| Service | Port(s) | Rule | Enforced by UFW? |
-|---------|---------|------|-------------------|
-| SSH | 22/tcp | `ufw limit` (rate-limited) | ✅ Yes — host service |
-| Pi-hole DNS | 53/tcp + 53/udp | `ufw allow` | ✅ Yes — UDP DNS traffic goes through OS network stack |
-| Audiobookshelf | 13378/tcp | `ufw allow` | 🟡 Bypassed (Docker-published port) |
-| NPM HTTP | 80/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
-| NPM HTTPS | 443/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
-| NPM Admin | 81/tcp | (no UFW rule needed) | 🟡 Bypassed (Docker) |
-| Uptime Kuma | 3001/tcp | `ufw allow` (documents intent) | 🟡 Bypassed (Docker) |
-| Portainer | 9000/tcp + 9443/tcp | `ufw allow` (documents intent) | 🟡 Bypassed (Docker) |
-| Homarr    | 7575/tcp            | `ufw allow` (documents intent) | 🟡 Bypassed (Docker) |
+| Service | Port(s) | Binding | UFW rule | Enforced by UFW? |
+|---|---|---|---|---|
+| SSH | 22/tcp | `0.0.0.0` (host) | `ufw limit` (rate-limited) | ✅ Yes — host service |
+| Pi-hole DNS | 53/tcp + 53/udp | `192.168.100.50` (LAN IP) | `ufw allow` | ✅ Yes — DNS traffic goes through OS network stack |
+| **Audiobookshelf** | **13378/tcp** | **`127.0.0.1` (loopback)** | **(no rule needed — loopback-only)** | **✅ Yes — refactored 2026-06; reachable only via NPM by hostname** |
+| NPM HTTP | 80/tcp | `0.0.0.0` (Docker) | (intent only) | 🟡 Bypassed (Docker) — entry point, intentionally public-facing |
+| NPM HTTPS | 443/tcp | `0.0.0.0` (Docker) | (intent only) | 🟡 Bypassed (Docker) — reserved for Phase 3 SSL |
+| NPM Admin | 81/tcp | `0.0.0.0` (Docker) | `ufw allow` (intent) | 🟡 Bypassed (Docker) — kept directly accessible as break-glass for NPM outages |
+| Pi-hole Web | 8888/tcp | `0.0.0.0` (Docker) | `ufw allow` (intent) | 🟡 Bypassed (Docker) — admin tool, break-glass access |
+| Uptime Kuma | 3001/tcp | `0.0.0.0` (Docker) | `ufw allow` (intent) | 🟡 Bypassed (Docker) — monitoring UI |
+| Portainer | 9000/tcp + 9443/tcp | `0.0.0.0` (Docker) | `ufw allow` (intent) | 🟡 Bypassed (Docker) — admin tool, break-glass access |
+| Homarr | 7575/tcp | `0.0.0.0` (Docker) | `ufw allow` (intent) | 🟡 Bypassed (Docker) — dashboard |
 
-The Docker-published ports (13378, 80, 81, 443) are technically reachable regardless of UFW because Docker writes its own nftables rules ahead of UFW's. Listed for documentation only. 
-The proper fix is to bind container ports to localhost and expose services only through NPM by hostname — pending refactor in late Phase 0 / Phase 1.
+The localhost-bind refactor (2026-06) graduated Audiobookshelf out of the bypass column. **Admin interfaces (NPM :81, Portainer :9000, Pi-hole :8888) deliberately remain directly accessible** — break-glass access during outages of NPM or the routing layer itself. User-facing services like Audiobookshelf have no such requirement and should funnel through NPM.
 
+The localhost-bind pattern can be applied to other user-facing services (Uptime Kuma, Homarr) incrementally without architectural changes. Admin tooling stays directly reachable by design.
 
 > Note: both fail2ban and UFW enforce through nftables. They coexist without conflict — UFW manages the base firewall policy, fail2ban dynamically inserts ban rules. No special integration needed.
 
@@ -339,8 +335,8 @@ This hardening pass is done. All four layers in place:
 - [x] UFW default-deny inbound, SSH rate-limited
 
 ### Future hardening (later phases)
-- [ ] Solve the Docker/UFW bypass properly — bind containers to localhost, expose via reverse proxy (Phase 0, with NPM)
-- [ ] Automated off-host backups of configs (Phase 0)
+- [x] Solve the Docker/UFW bypass properly — done for Audiobookshelf 2026-06 (loopback-bound, NPM-only entry). Pattern proven; remaining user-facing services (Uptime Kuma, Homarr) can adopt incrementally. Admin tools deliberately left directly accessible as break-glass.
+- [ ] Automated off-host backups of configs (Phase 1 or beyond — currently single-site HDD backup)
 - [ ] Consider SSH cert-based auth or 2FA (later, optional)
 
 
