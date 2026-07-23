@@ -5,8 +5,6 @@
 **Where:** Container `homarr` on the `homelab` Docker network, UI on `:7575`.
 **Status:** Running with 5 service tiles, Uptime Kuma status integration, Zagreb weather widget, and a clock.
 
-> ⚠️ This doc was drafted with AI assistance during Phase 0 close-out. Rewrite owed by **2026-08-31** — see `docs/TODO.md` documentation debt entry.
-
 ---
 
 ## Why it exists
