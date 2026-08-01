@@ -5,8 +5,6 @@
 **Where:** Container `uptime-kuma` on the shared `homelab` Docker network, admin UI on `:3001`.
 **Status:** Running with 7 monitors covering each service plus DNS and an external sanity check. Telegram notifications wired up and verified. Break/fix drill executed and documented in `Pihole.md`.
 
-> ⚠️ This doc was drafted with AI assistance during Phase 0 close-out. Rewrite owed by **2026-08-31** — see `docs/TODO.md` documentation debt entry.
-
 ---
 
 ## Why it exists
