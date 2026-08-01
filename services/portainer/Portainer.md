@@ -5,8 +5,6 @@
 **Where:** Container `portainer` on the `homelab` Docker network, admin UI on `:9000` (HTTP) and `:9443` (HTTPS, self-signed).
 **Status:** Running. Admin account created on first start.
 
-> ⚠️ This doc was drafted with AI assistance during Phase 0 close-out. Rewrite owed by **2026-08-31** — see `docs/TODO.md` documentation debt entry.
-
 ---
 
 ## Why it exists
