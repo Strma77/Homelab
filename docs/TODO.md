@@ -2,6 +2,12 @@
 
 ## Current Phase: Phase 1 — Infrastructure Migration (two exit checkpoints remaining)
 
+- Figure out what to do with portainer, not working atm
+- audiobookshelf not working atm
+- change from 10.10.... to actual domains
+- host the roadmap on beelink
+
+
 ---
 
 ## Phase 1 — Completed
