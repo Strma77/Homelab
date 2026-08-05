@@ -119,9 +119,9 @@ homelab/
 
 ## Network Topology
 
-*Diagram update pending — must reflect OPNsense, three zones, DNS chain.*
+![Homelab network topology](docs/HomeLab-NetworkTopologyV3.png)
 
-Source file: [docs/HomeLab-NetworkTopologyV2.excalidraw](docs/HomeLab-NetworkTopologyV2.excalidraw)
+Source file: [docs/HomeLab-NetworkTopologyV3.excalidraw](docs/HomeLab-NetworkTopologyV3.excalidraw)
 
 ---
 
