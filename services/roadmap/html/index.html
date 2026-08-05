@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Learning Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+
+    --p0: #f0c040;
+    --p1: #4fc3f7;
+    --p2: #a78bfa;
+    --p3: #34d399;
+    --p4: #f87171;
+    --p5: #fb923c;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px 120px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    margin-bottom: 64px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 40px;
+  }
+
+  .header-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: var(--sans);
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .header h1 span { color: var(--p0); }
+
+  .header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .meta-tag {
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .progress-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 48px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .progress-label span:last-child { color: var(--p0); }
+
+  .progress-track {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--p0);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+    width: 0%;
+  }
+
+  .rule-box {
+    border-left: 3px solid var(--p0);
+    padding: 16px 20px;
+    margin-bottom: 48px;
+    background: rgba(240,192,64,0.04);
+  }
+
+  .rule-box .rule-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p0);
+    margin-bottom: 8px;
+  }
+
+  .rule-box p {
+    font-size: 13px;
+    color: #c8c8d8;
+    line-height: 1.6;
+  }
+
+  .rule-box strong { color: var(--text); }
+
+  .phase {
+    margin-bottom: 56px;
+    position: relative;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .phase-num {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .phase-0 .phase-num { background: rgba(240,192,64,0.15); color: var(--p0); border: 1px solid rgba(240,192,64,0.3); }
+  .phase-1 .phase-num { background: rgba(79,195,247,0.12); color: var(--p1); border: 1px solid rgba(79,195,247,0.25); }
+  .phase-2 .phase-num { background: rgba(167,139,250,0.12); color: var(--p2); border: 1px solid rgba(167,139,250,0.25); }
+  .phase-3 .phase-num { background: rgba(52,211,153,0.12); color: var(--p3); border: 1px solid rgba(52,211,153,0.25); }
+  .phase-4 .phase-num { background: rgba(248,113,113,0.12); color: var(--p4); border: 1px solid rgba(248,113,113,0.25); }
+  .phase-5 .phase-num { background: rgba(251,146,60,0.12); color: var(--p5); border: 1px solid rgba(251,146,60,0.25); }
+
+  .phase-title-block { flex: 1; }
+
+  .phase-title {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .phase-0 .phase-title { color: var(--p0); }
+  .phase-1 .phase-title { color: var(--p1); }
+  .phase-2 .phase-title { color: var(--p2); }
+  .phase-3 .phase-title { color: var(--p3); }
+  .phase-4 .phase-title { color: var(--p4); }
+  .phase-5 .phase-title { color: var(--p5); }
+
+  .phase-meta {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .phase-toggle {
+    font-size: 18px;
+    color: var(--muted);
+    transition: transform 0.25s ease, color 0.2s;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .phase-header:hover .phase-toggle { color: var(--text); }
+  .phase.open .phase-toggle { transform: rotate(45deg); color: var(--text); }
+
+  .phase-body {
+    display: none;
+    padding-left: 0;
+  }
+
+  .phase.open .phase-body { display: block; }
+
+  .phase-desc {
+    font-size: 13px;
+    color: #a0a0b8;
+    line-height: 1.8;
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .checklist { list-style: none; }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li:hover { background: rgba(255,255,255,0.02); }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-hover);
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 10px;
+  }
+
+  .checklist li.done .check-box {
+    background: var(--p3);
+    border-color: var(--p3);
+    color: #000;
+  }
+
+  .checklist li.done .check-text {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .check-text {
+    font-size: 13px;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .check-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    display: block;
+  }
+
+  .checkpoints {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
+  }
+
+  .checkpoint-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .phase-0 .checkpoint-title { color: var(--p0); }
+  .phase-1 .checkpoint-title { color: var(--p1); }
+  .phase-2 .checkpoint-title { color: var(--p2); }
+  .phase-3 .checkpoint-title { color: var(--p3); }
+  .phase-4 .checkpoint-title { color: var(--p4); }
+  .phase-5 .checkpoint-title { color: var(--p5); }
+
+  .checkpoint-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    color: #a0a0b8;
+    padding: 5px 0;
+    cursor: pointer;
+  }
+
+  .checkpoint-item:hover { color: var(--text); }
+
+  .cp-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--muted);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    transition: all 0.2s;
+  }
+
+  .checkpoint-item.done .cp-box {
+    background: var(--p3);
+    border-color: var(--p3);
+    color: #000;
+  }
+
+  .checkpoint-item.done span { text-decoration: line-through; color: var(--muted); }
+
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 56px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .phase-divider::before, .phase-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .warning-box {
+    border: 1px solid rgba(248,113,113,0.3);
+    background: rgba(248,113,113,0.05);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 48px;
+  }
+
+  .warning-box .warning-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p4);
+    margin-bottom: 12px;
+  }
+
+  .warning-item {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    color: #a0a0b8;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .warning-item:last-child { border-bottom: none; }
+  .warning-item::before { content: '✗'; color: var(--p4); flex-shrink: 0; }
+
+  .footer {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .save-notice {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 16px;
+    font-size: 11px;
+    color: var(--p3);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .save-notice.show { opacity: 1; }
+
+  @media (max-width: 600px) {
+    .phase-title { font-size: 18px; }
+    .header h1 { font-size: 28px; }
+  }
+
+  /* --- Project section additions --- */
+  .project-section {
+    margin-bottom: 28px;
+    border: 1px solid var(--border-hover);
+    border-radius: 6px;
+    padding: 20px 20px 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+
+  .project-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 3px;
+    margin-bottom: 14px;
+  }
+
+  .phase-1 .project-badge { background: rgba(79,195,247,0.15); color: var(--p1); border: 1px solid rgba(79,195,247,0.35); }
+  .phase-2 .project-badge { background: rgba(167,139,250,0.15); color: var(--p2); border: 1px solid rgba(167,139,250,0.35); }
+  .phase-3 .project-badge { background: rgba(52,211,153,0.15); color: var(--p3); border: 1px solid rgba(52,211,153,0.35); }
+  .phase-4 .project-badge { background: rgba(248,113,113,0.15); color: var(--p4); border: 1px solid rgba(248,113,113,0.35); }
+
+  .project-goal {
+    font-size: 13px;
+    color: #c8c8d8;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    padding-left: 2px;
+  }
+
+  .project-goal strong { color: var(--text); }
+
+  .build-arrow {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin: -8px 0 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <div class="header-label">// personal learning system</div>
+    <h1>IT <span>Roadmap</span><br>2025 → 2027</h1>
+    <div class="header-meta">
+      <span class="meta-tag">Networking + Infra</span>
+      <span class="meta-tag">DevOps</span>
+      <span class="meta-tag">Cybersec (secondary)</span>
+      <span class="meta-tag">AI/MLOps (later)</span>
+      <span class="meta-tag">TVZ 2nd year</span>
+    </div>
+  </header>
+
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>Overall Progress</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-label">// Core Rule — Never Break This</div>
+    <p><strong>Every new technology must solve a problem created by the previous phase.</strong> If you can't articulate what problem a new tool solves in your existing setup, you're not ready for it. This is how you avoid tutorial addiction and build real depth.</p>
+  </div>
+
+  <!-- PHASE 0 -->
+  <div class="phase phase-0" id="phase-0">
+    <div class="phase-header" onclick="togglePhase('phase-0')">
+      <div class="phase-num">Phase 0 · Complete</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Foundation Hardening</div>
+        <div class="phase-meta">Closed: June 2026 · Phase 1 unlocked</div>
+      </div>
+      <div class="phase-toggle">+</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-desc">
+        You already have one Dockerized app running in VirtualBox. That's level 1. This phase is about building the operational muscle memory that makes everything else make sense. You're not adding new tech — you're deepening what you already touched. The goal is to go from "it works" to "I know exactly why it works and how to fix it when it breaks."
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Docker Compose Depth</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Rebuild Audiobookshelf from scratch using a proper docker-compose.yml<span class="check-note">Don't copy-paste. Write it yourself. Understand every line.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Implement named volumes and bind mounts correctly<span class="check-note">Know the difference — when to use which and why.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Add healthchecks and restart policies to all containers<span class="check-note">restart: unless-stopped is your friend. Healthchecks define when a container is actually "ready".</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Use .env files for environment variables — no hardcoded secrets<span class="check-note">Every password, port, and domain in a .env file. Add .env to .gitignore immediately.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Set up a custom bridge network in Docker Compose<span class="check-note">Services on the same network talk by container name, not IP. Understand why.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Learn docker logs, docker exec, docker inspect commands cold<span class="check-note">You should be able to debug any container issue without a GUI.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Deploy Portainer for container management UI<span class="check-note">Useful visual layer, but always know the CLI equivalent of what you're clicking.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Linux Administration</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Master systemd — enable, disable, start, stop, status, journalctl<span class="check-note">Every service on Linux is managed by systemd. You need this daily.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Harden SSH — disable root login, use key-based auth only, change default port<span class="check-note">Your future self will thank you when this becomes habit.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Configure UFW firewall rules — only open what you need<span class="check-note">Default deny inbound, allow only specific ports. Understand what each rule does.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Set up automated backups with rsync + cron<span class="check-note">Write a bash script that backs up your Docker volumes to one of your HDDs on a schedule.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Understand file permissions deeply — chmod, chown, umask<span class="check-note">Be able to explain rwxr-xr-x without looking it up.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Learn disk management — lsblk, df, du, mount, fstab<span class="check-note">You have 8TB of HDDs. Make sure they mount on boot and you can manage them properly.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Core Stack to Deploy (on Ubuntu, before Proxmox)</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Deploy Nginx Proxy Manager<span class="check-note">Your reverse proxy. All services will sit behind this. Handles SSL certs automatically via Let's Encrypt.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Deploy Pi-hole or AdGuard Home for local DNS<span class="check-note">Now your services get real hostnames like audiobookshelf.local instead of 192.168.x.x:port</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Deploy Uptime Kuma for monitoring<span class="check-note">Set up alerts for all your services. First time something goes down and you get notified before you notice — that's the moment monitoring clicks.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Deploy WireGuard VPN<span class="check-note">Covered via Tailscale — same security goal, works behind ISP-locked ONT (no port forwarding required). WireGuard deferred to Phase 3 if a self-hosted VPN endpoint becomes needed.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Set up a basic dashboard (Homarr or Heimdall)<span class="check-note">One page with links to all your services. Looks good, forces you to organize what you're running.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Start a documentation repo (Git + Markdown)<span class="check-note">Architecture diagram, service list, network map, what broke and how you fixed it. This is non-negotiable.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="checkpoints">
+        <div class="checkpoint-title">// Exit Checkpoints — don't move to Phase 1 until all green</div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Can recover a broken container from scratch without Googling the basics</span></div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>All services survive a full system reboot automatically</span></div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Backups are automated and you've tested restoring from them</span></div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>You can reach your homelab from your laptop via WireGuard (covered by Tailscale)</span></div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>You can explain your entire network setup to someone without checking anything</span></div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Documentation repo exists with at least a network map and service list</span></div>
+        <div class="checkpoint-item done" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>You stop fearing logs — they're your first debugging instinct</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-divider">↓ proxmox unlocks here ↓</div>
+
+  <!-- PHASE 1 -->
+  <div class="phase phase-1 open" id="phase-1">
+    <div class="phase-header" onclick="togglePhase('phase-1')">
+      <div class="phase-num">Phase 1</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Infrastructure Mindset</div>
+        <div class="phase-meta">Timeline: 2–3 months · Requires: Phase 0 checkpoints done</div>
+      </div>
+      <div class="phase-toggle">+</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-desc">
+        This is where you stop being a person who uses computers and start being a person who builds systems. Proxmox replaces your VirtualBox. Your desktop stops being "Ubuntu with some VMs" and becomes a dedicated virtualization node. You'll build proper network segmentation, migrate your existing services, and start thinking in terms of infrastructure rather than individual apps.
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Proxmox Installation</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Get a second SSD (even 120GB is enough) and install Proxmox on it<span class="check-note">Dual boot setup — Ubuntu for daily work, Proxmox for homelab. Don't nuke your daily driver yet.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Access Proxmox web UI at https://your-ip:8006<span class="check-note">Get comfortable with the interface before touching anything else.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Understand the difference between VMs and LXC containers in Proxmox<span class="check-note">LXC = lightweight, shares kernel, great for services. VM = full isolation, needed for Windows, pfSense, etc.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Create VM templates for Ubuntu Server and Debian<span class="check-note">Clone from template instead of reinstalling every time. This is the first taste of infrastructure efficiency.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Learn snapshots — create, restore, delete<span class="check-note">Snapshot before every major change. Restore when you break something. You will break something.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Configure Proxmox storage — local, local-lvm, and add your HDDs as storage<span class="check-note">You have 8TB of HDDs. Add them as a directory storage pool for VM disks and backups.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Set up automated Proxmox backups (PBS or built-in backup)<span class="check-note">Schedule nightly VM backups to your HDD storage. If it's not backed up it doesn't exist.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Network Segmentation with VLANs</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Understand VLANs conceptually — tagged vs untagged, trunks, access ports<span class="check-note">Draw it on paper before configuring it. What traffic goes where and why.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Create Linux bridges in Proxmox for network separation<span class="check-note">vmbr0 for management, vmbr1 for services, vmbr2 for lab/experimental traffic.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy pfSense or OPNsense as a VM — your virtual router/firewall<span class="check-note">This is the backbone of proper network segmentation. All inter-VLAN traffic routes through here.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Configure firewall rules between VLANs<span class="check-note">Management VLAN can reach Services VLAN. Lab VLAN is isolated from everything. Understand why each rule exists.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Document your network topology as a diagram<span class="check-note">Draw.io or Excalidraw. Every VLAN, every VM, every connection. Keep it updated.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Service Migration into Proxmox</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Migrate your Docker stack into a dedicated Docker VM inside Proxmox<span class="check-note">Don't mix everything in one VM. Docker services live in the Docker VM, DNS in DNS VM, etc.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Migrate Pi-hole/AdGuard into its own LXC container<span class="check-note">DNS should be lightweight and always-on. LXC is perfect for this.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Move your SOC lab (Wazuh, Kali, Metasploitable) into Proxmox VMs<span class="check-note">Put them on your isolated lab VLAN. Now your SOC lab has real network isolation.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up WireGuard VPN inside Proxmox<span class="check-note">Now your VPN gateway lives in the infrastructure layer, not on your Ubuntu desktop.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="project-section">
+        <div class="project-badge">🖧 Build Something Real — Networking Sandbox</div>
+        <div class="project-goal">
+          <strong>Goal:</strong> a dedicated, disposable GNS3/EVE-NG box for breaking real virtualized network devices — separate from the Beelink, which stays stable once migration lands. This directly unstalls your thesis mentorship (one of the three rejected upgrade paths was exactly this) and gives you a safe place to wreck configs without wrecking production.
+        </div>
+        <div class="section-title">// Sandbox Build</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Stand up the i5-3470 box as a dedicated GNS3/EVE-NG host, fully isolated from the Beelink/production VLANs<span class="check-note">Disposable by design. If it dies or gets nuked, nothing else breaks.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Import Cisco IOS images and get a basic 2-router topology pinging<span class="check-note">First win: two virtual routers, one link, ICMP reachable.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Migrate your Packet Tracer enterprise topology (VLANs, OSPF, HSRP, RPVST+) into GNS3/EVE-NG<span class="check-note">This is the thesis unblock. Same design, real virtualized devices instead of simulated ones.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Define the thesis's original contribution using this migration as the vehicle<span class="check-note">e.g. "what breaks / what has to change when moving a Packet Tracer design to real virtualized IOS" — that's a defensible research question your mentor can work with.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Intentionally break routing (OSPF neighbor mismatch, wrong area, ACL lockout) and practice recovering without notes<span class="check-note">This is where Packet Tracer knowledge becomes real troubleshooting instinct.</span></div></li>
+        </ul>
+      </div>
+      <div class="build-arrow">↓ ship the topology → feed Phase 3's routing work ↓</div>
+
+      <div class="checkpoints">
+        <div class="checkpoint-title">// Exit Checkpoints</div>
+        <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>Can spin up a new VM from template in under 5 minutes</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>VLAN segmentation is working — lab traffic can't reach services traffic</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>All previous services running inside Proxmox, nothing left on bare Ubuntu</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>Can recover a failed VM from snapshot or backup</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Network topology diagram is accurate and up to date</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>You think in VMs/containers, not in "apps on my computer"</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-divider">↓ monitoring + automation unlocks here ↓</div>
+
+  <!-- PHASE 2 -->
+  <div class="phase phase-2" id="phase-2">
+    <div class="phase-header" onclick="togglePhase('phase-2')">
+      <div class="phase-num">Phase 2</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Monitoring + Automation</div>
+        <div class="phase-meta">Timeline: 2–3 months · Requires: Phase 1 checkpoints done</div>
+      </div>
+      <div class="phase-toggle">+</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-desc">
+        By now your infrastructure exists and works. But you're probably doing the same manual steps repeatedly, and you have no visibility into what's actually happening inside your systems. This phase fixes both. You'll add proper observability so you can see everything, and start automating the repetitive stuff so you stop being the manual layer in your own infrastructure.
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Monitoring Stack</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy Prometheus for metrics collection<span class="check-note">Scrapes metrics from your VMs, containers, and services on a schedule.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy Node Exporter on every VM<span class="check-note">Exposes CPU, RAM, disk, network metrics to Prometheus. One per host.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy Grafana and connect it to Prometheus<span class="check-note">Build a dashboard showing all your VMs' resource usage. Understand what normal looks like.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add Loki for log aggregation<span class="check-note">Ship logs from all your containers and VMs into one place. Never SSH into 5 machines to find a log again.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up alerting rules in Grafana<span class="check-note">Alert when disk is above 80%, when a service goes down, when RAM spikes. Observability means nothing without alerts.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add Proxmox metrics to Grafana via the Proxmox exporter<span class="check-note">See VM CPU/RAM usage directly in your dashboard alongside everything else.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Automation Basics</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Write bash scripts for repetitive tasks — VM setup, backup verification, service checks<span class="check-note">Every time you do the same thing manually twice, script it. No exceptions.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Learn Ansible basics — inventory, playbooks, tasks, handlers<span class="check-note">Start simple: a playbook that installs Docker and deploys your stack on a fresh VM.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Write an Ansible playbook to provision your standard Ubuntu Server VM<span class="check-note">SSH hardening, UFW setup, Docker install, user config. Run it on every new VM instead of doing it manually.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Version control all your configs in Git<span class="check-note">Docker Compose files, Ansible playbooks, Nginx configs — all in Git. Treat your infra like code.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy Gitea — self-hosted Git server<span class="check-note">Your configs live on YOUR infrastructure, not GitHub. Also good practice for running a Git server.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// SOC Lab Expansion (cybersec secondary)</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Configure Wazuh to monitor traffic across your VLANs<span class="check-note">Now your SIEM has meaningful segmented network traffic to analyze, not just one flat network.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Run intentional attack simulations and verify Wazuh catches them<span class="check-note">FTP exploit, port scan, brute force — generate known traffic, confirm detection. Close the loop.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Write custom Wazuh detection rules for your specific lab traffic<span class="check-note">Generic rules are a starting point. Custom rules show you actually understand what you're detecting.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="project-section">
+        <div class="project-badge">📱 Build Something Real — Phone App Backend</div>
+        <div class="project-goal">
+          <strong>Goal:</strong> stop your React app's data from dying every time you delete the app. Right now it's phone → local storage → gone forever if uninstalled. That's a real, concrete gap — and Phase 2 hands you exactly the tools (Docker, Git, monitoring) to fix it by giving the app an actual backend that lives on your infra.
+        </div>
+        <div class="section-title">// Backend v1</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Stand up a minimal backend (Express or FastAPI) + SQLite in a Docker container<span class="check-note">Smallest possible version that replaces local storage with a real API.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Point the React app at the API over HTTPS through your reverse proxy<span class="check-note">Reuses the NPM/Traefik setup you already run for everything else.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add basic auth (JWT) so the data is yours and only yours<span class="check-note">Even single-user, do it properly — this is the skill that transfers to real jobs.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Migrate SQLite → PostgreSQL once the schema stabilizes<span class="check-note">Don't over-engineer on day one. Start simple, graduate the database when you actually need to.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add the backend + DB to your existing backup routine and Uptime Kuma/Grafana monitoring<span class="check-note">If it's not backed up and monitored like everything else in your homelab, it doesn't count as done.</span></div></li>
+        </ul>
+      </div>
+      <div class="build-arrow">↓ this app grows through Phase 3 (CI/CD) and Phase 4 (AI features) ↓</div>
+
+      <div class="checkpoints">
+        <div class="checkpoint-title">// Exit Checkpoints</div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Grafana dashboard shows all VMs' health at a glance</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>You find out about problems from alerts, not by randomly noticing</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>New VM provisioning is done with Ansible, not manual steps</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>All configs are in Git — nothing important lives only on a server</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Repetitive tasks annoy you enough that you always script them</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-divider">↓ advanced networking + devops ↓</div>
+
+  <!-- PHASE 3 -->
+  <div class="phase phase-3" id="phase-3">
+    <div class="phase-header" onclick="togglePhase('phase-3')">
+      <div class="phase-num">Phase 3</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Advanced Networking + DevOps</div>
+        <div class="phase-meta">Timeline: 3–4 months · Requires: Phase 2 checkpoints done</div>
+      </div>
+      <div class="phase-toggle">+</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-desc">
+        This is where junior infrastructure engineer mindset starts forming. You'll go deeper into networking — the thing you actually care about — and start touching DevOps workflows properly. CI/CD, self-hosted pipelines, certificate management, advanced routing. By the end of this phase your homelab is genuinely impressive and your skill set is starting to align with real job requirements.
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Advanced Networking</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Replace Nginx Proxy Manager with Traefik<span class="check-note">More powerful, config-as-code, dynamic routing. Harder to set up, which is the point.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up internal PKI with Step-CA or similar<span class="check-note">Issue your own SSL certificates for internal services. Understand the certificate chain.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Configure BGP or OSPF basics inside your lab with pfSense<span class="check-note">Dynamic routing protocols. This is where packet tracer knowledge meets real config.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Implement IDS/IPS with Suricata inside OPNsense<span class="check-note">Real-time traffic inspection on your network. Connects networking with your cybersec interest.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up a proper DNS split-horizon setup<span class="check-note">Internal DNS resolves to private IPs, external DNS to public. Standard enterprise pattern.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// DevOps Workflows</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up GitHub Actions or Gitea Actions for a CI/CD pipeline<span class="check-note">Auto-build and deploy a simple app when you push code. The "push to deploy" moment is when CI/CD clicks.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy self-hosted runners for your CI/CD inside Proxmox<span class="check-note">Your pipeline runs on YOUR infrastructure. Not GitHub's servers.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Build a simple app (even a personal project) with full CI/CD pipeline<span class="check-note">Code push → tests run → Docker image built → deployed to your homelab. End to end.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Learn Terraform basics — provision a VM with code, not UI clicks<span class="check-note">Proxmox has a Terraform provider. Define your infrastructure in HCL, apply it, see the VM appear.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Implement GitOps mindset — infra changes go through Git, not direct edits<span class="check-note">No SSH-ing into servers and editing configs manually. Change in Git, pipeline applies it.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="project-section">
+        <div class="project-badge">🚀 Build Something Real — Ship The App On Autopilot</div>
+        <div class="project-goal">
+          <strong>Goal:</strong> the phone app backend from Phase 2 stops being something you deploy by hand. This is where "push code" and "it's live" become the same event — and where your CI/CD skills get tested against something you actually care about, every week.
+        </div>
+        <div class="section-title">// Pipeline For The Real App</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Wire the phone app backend into your Gitea/GitHub Actions pipeline: push → build → deploy<span class="check-note">This is the exact skill from the DevOps section, applied to something with real stakes.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Provision the backend's VM/container with Terraform instead of clicking it into existence<span class="check-note">Destroy it, re-apply, watch it come back identical. That's the IaC payoff.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Put the backend behind Traefik with a real internal cert, and add it to split-horizon DNS<span class="check-note">Same treatment as every other production service in your lab — no special-casing your own project.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Enforce GitOps: no manual SSH edits to the backend, ever — only through Git + pipeline<span class="check-note">The discipline test. If you catch yourself SSH-ing in to "just fix one thing," that's the tell you're not done with this checkpoint.</span></div></li>
+        </ul>
+      </div>
+      <div class="build-arrow">↓ Phase 4 turns this into your AI showcase project ↓</div>
+
+      <div class="checkpoints">
+        <div class="checkpoint-title">// Exit Checkpoints</div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Full CI/CD pipeline working — push code, watch it deploy automatically</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Traefik routing working with internal SSL certs</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Can explain your network topology including routing decisions to someone else</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Infrastructure changes go through code, not manual CLI</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>You're describing your setup with terms like "pipeline", "IaC", "segmentation" naturally</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-divider">↓ local AI integration ↓</div>
+
+  <!-- PHASE 4 -->
+  <div class="phase phase-4" id="phase-4">
+    <div class="phase-header" onclick="togglePhase('phase-4')">
+      <div class="phase-num">Phase 4</div>
+      <div class="phase-title-block">
+        <div class="phase-title">AI Integration + MLOps</div>
+        <div class="phase-meta">Timeline: Ongoing · Requires: Phase 3 stable</div>
+      </div>
+      <div class="phase-toggle">+</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-desc">
+        NOW your AI interest becomes powerful instead of gimmicky. Because now you have real infrastructure to deploy it INTO. You're not just downloading a model and chatting with it — you're building AI-powered systems that integrate with your existing stack. Your RTX 2060 Super with CUDA can run 7B models comfortably. Use it.
+      </div>
+
+      <div class="section">
+        <div class="section-title">// Local Inference Stack</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up CUDA drivers and verify GPU acceleration is working<span class="check-note">nvidia-smi should show your GPU. This is the foundation for everything GPU-accelerated.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy Ollama in a Docker container with GPU passthrough<span class="check-note">GPU passthrough in Proxmox is a project in itself. Worth the effort.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy Open WebUI connected to Ollama<span class="check-note">Your own local ChatGPT interface running on your hardware. No API costs.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Run and compare: Llama 3 8B, Mistral 7B, Qwen 7B<span class="check-note">Understand model differences. Coding tasks, reasoning, speed vs quality tradeoffs.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Build a RAG pipeline over your documentation repo<span class="check-note">Ask your local AI about your own infrastructure docs. Practical and impressive.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">// AI-Powered Infra Projects</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Build a log analysis assistant using your Loki logs + LLM<span class="check-note">Feed logs to an LLM, get plain English explanations of what's happening. Networking + AI = MLOps.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Set up a self-hosted coding assistant (Continue.dev or similar)<span class="check-note">Local Copilot in your editor. Backed by your Ollama instance.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Experiment with embeddings and vector databases (Qdrant or Chroma)<span class="check-note">The backbone of RAG systems. Understand semantic search vs keyword search.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="project-section">
+        <div class="project-badge">🤖 Build Something Real — AI Features For The App</div>
+        <div class="project-goal">
+          <strong>Goal:</strong> the phone app stops being "an app with a database" and becomes your flagship portfolio piece — a personal platform with real AI features, running entirely on infrastructure you built and can explain end to end. This is the difference between "I made a todo app" and "I run a personal platform" in an interview.
+        </div>
+        <div class="section-title">// AI Features, Not Bolted-On Hype</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add semantic search over your app's entries using your local Ollama + embeddings<span class="check-note">Search by meaning, not exact keyword. This is the first real RAG payoff.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Build a natural-language query feature ("what did I log last month?") backed by your local LLM<span class="check-note">Ties directly into the RAG pipeline you already built over your docs.</span></div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add simple AI-generated trend summaries from the app's stored data<span class="check-note">The AI explains patterns in data you already own — not a chatbot bolted on for the demo.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="checkpoints">
+        <div class="checkpoint-title">// You've arrived when...</div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Local LLM is integrated INTO your infrastructure, not running as a standalone toy</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>You can describe the difference between inference, RAG, and fine-tuning</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>AI is a tool in your stack, not the point of your stack</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-divider">// traps to avoid at all costs //</div>
+
+  <div class="warning-box">
+    <div class="warning-title">// Do Not Touch Until Phase 3+ Is Done</div>
+    <div class="warning-item">Kubernetes — learn Docker and Linux deeply first or you'll just memorize YAML without understanding systems</div>
+    <div class="warning-item">Multi-node clustering — you need operational maturity with a single node before scaling</div>
+    <div class="warning-item">Cloud (AWS/Azure) heavy focus — local infra pain points teach you WHY cloud exists. Learn local first</div>
+    <div class="warning-item">Terraform before Ansible — Ansible is simpler, more immediately useful. Don't skip it</div>
+    <div class="warning-item">Collecting certifications before building things — certs after skills, not instead of skills</div>
+  </div>
+
+  <div class="footer">
+    <span>Progress auto-saved in browser · Click any item to mark complete</span>
+    <span id="footer-count">0 items completed</span>
+  </div>
+
+</div>
+
+<div class="save-notice" id="save-notice">Progress saved</div>
+
+<script>
+  function togglePhase(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+
+  function toggleCheck(li) {
+    li.classList.toggle('done');
+    saveProgress();
+    updateProgress();
+  }
+
+  function toggleCp(el) {
+    el.classList.toggle('done');
+    saveProgress();
+    updateProgress();
+  }
+
+  function saveProgress() {
+    const done = [];
+    document.querySelectorAll('.checklist li.done').forEach((el, i) => {
+      done.push(el.closest('.phase').id + '-check-' + Array.from(el.parentNode.children).indexOf(el));
+    });
+    const cpDone = [];
+    document.querySelectorAll('.checkpoint-item.done').forEach((el, i) => {
+      cpDone.push(el.closest('.phase').id + '-cp-' + Array.from(el.parentNode.children).indexOf(el));
+    });
+    localStorage.setItem('roadmap-checks', JSON.stringify(done));
+    localStorage.setItem('roadmap-cps', JSON.stringify(cpDone));
+    showSaveNotice();
+  }
+
+  function loadProgress() {
+    const savedChecks = JSON.parse(localStorage.getItem('roadmap-checks') || '[]');
+    const savedCps = JSON.parse(localStorage.getItem('roadmap-cps') || '[]');
+
+    savedChecks.forEach(key => {
+      const parts = key.split('-check-');
+      const phaseId = parts[0];
+      const idx = parseInt(parts[1]);
+      const phase = document.getElementById(phaseId);
+      if (phase) {
+        const items = phase.querySelectorAll('.checklist li');
+        if (items[idx]) items[idx].classList.add('done');
+      }
+    });
+
+    savedCps.forEach(key => {
+      const parts = key.split('-cp-');
+      const phaseId = parts[0];
+      const idx = parseInt(parts[1]);
+      const phase = document.getElementById(phaseId);
+      if (phase) {
+        const items = phase.querySelectorAll('.checkpoint-item');
+        if (items[idx]) items[idx].classList.add('done');
+      }
+    });
+
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll('.checklist li, .checkpoint-item').length;
+    const done = document.querySelectorAll('.checklist li.done, .checkpoint-item.done').length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('footer-count').textContent = done + ' / ' + total + ' items completed';
+  }
+
+  function showSaveNotice() {
+    const el = document.getElementById('save-notice');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1500);
+  }
+
+  loadProgress();
+</script>
+</body>
+</html>

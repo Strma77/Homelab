@@ -1,0 +1,15 @@
+services:
+    roadmap:
+        image: nginx:alpine
+        container_name: roadmap
+        ports:
+            - "8080:80"
+        restart: unless-stopped
+        networks:
+            - homelab
+        volumes:
+            - ./html:/usr/share/nginx/html:ro
+
+networks:
+    homelab:
+        external: true
