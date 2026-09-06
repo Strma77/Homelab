@@ -81,3 +81,4 @@
 - [ ] Discuss expediting the AI development to have local AI agent on my phone and PC asap
 - [ ] Rework MonkDew
 - [ ] Host MonkDew on proxmox
+- [ ] Write cheatsheet for me when I forget what "ssh pve" and "ssh docker" are and write small md with bulletpoints giving a quick rundown for me personally, maybe incorporate that in Readme
