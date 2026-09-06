@@ -15,7 +15,7 @@ services:
             start_period: 40s
         volumes:
             - uptime-kuma_data:/app/data
-
+            - /var/run/docker.sock:/var/run/docker.sock:ro
 networks:
     homelab:
         external: true
