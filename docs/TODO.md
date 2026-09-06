@@ -6,6 +6,7 @@
 - [ ] Portainer — sort out why it's flaky
 - [ ] Audiobookshelf — not working since migration, fix or retire
 - [ ] Switch service access from 10.10.20.x IPs to real hostnames (NPM) — would also shrink the firewall allow-list to basically 443+22
+- [ ] figure out why roadmap site doesnt save state even after refresh
 
 ## Phase 1 — In Progress
 - [ ] **Test-restore a backup** — restore CT 101 to a throwaway VMID (e.g. 999), confirm boot, delete. Backups still UNPROVEN until this passes. ← highest-value next job
@@ -27,4 +28,4 @@
 - [ ] ntfy: narrow matcher to failures-only, consider self-hosting with auth
 - [ ] Off-site backup (3-2-1) — currently on-site only
 - [ ] SSH cheatsheet md (ssh pve / ssh docker mappings)
-- [ ] RepCount clone / MonkDew rework+host / local AI agent — someday
+- [ ] RepCount clone / MonkDew rework+host / local AI agent — someday, as soon as possible as I have real world use for it immediately
