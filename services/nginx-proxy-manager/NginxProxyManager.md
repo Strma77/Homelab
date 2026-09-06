@@ -12,9 +12,9 @@
 Before NPM, every service was reached by IP and port:
 
 ```text
-192.168.100.50:13378
-192.168.100.50:3000
-192.168.100.50:8080
+10.10.20.50:13378
+10.10.20.50:3000
+10.10.20.50:8080
 ```
 
 Fine with one or two services. Annoying past that — every new app meant another port to remember and document.
@@ -173,7 +173,7 @@ Forward Hostname / IP:  audiobookshelf
 Forward Port:           80
 ```
 
-The thing that finally made Docker networking click: the forward destination is NOT what users see externally (`192.168.100.50:13378`). NPM and Audiobookshelf already share the `homelab` network, so from NPM's perspective the destination is:
+The thing that finally made Docker networking click: the forward destination is NOT what users see externally (`10.10.20.50:13378`). NPM and Audiobookshelf already share the `homelab` network, so from NPM's perspective the destination is:
 
 ```text
 audiobookshelf:80
@@ -196,7 +196,7 @@ Websockets matters specifically for Audiobookshelf — it uses persistent connec
 The hostname needs to resolve to the NPM host. Before Pi-hole was deployed, I used a temporary entry in the desktop's `/etc/hosts`:
 
 ```text
-192.168.100.50 audiobookshelf.home
+10.10.20.50 audiobookshelf.home
 ```
 
 Once Pi-hole is up, the record moves there and the hosts hack goes away.
@@ -277,13 +277,13 @@ docker ps
 Admin UI responds:
 
 ```bash
-curl http://192.168.100.50:81
+curl http://10.10.20.50:81
 # expect: HTML response
 ```
 
 Proxy routing:
 
-1. Make `audiobookshelf.home` resolve to `192.168.100.50` (hosts file or Pi-hole)
+1. Make `audiobookshelf.home` resolve to `10.10.20.50` (hosts file or Pi-hole)
 2. Open `http://audiobookshelf.home`
 3. Audiobookshelf loads through NPM, no `:13378` needed
 

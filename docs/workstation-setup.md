@@ -26,7 +26,9 @@ This document describes the hardware, virtualization platform, and network archi
 - IOMMU: enabled (`intel_iommu=on` in GRUB)
 
 ### Backup storage
-NFS share from desktop HDD (NTFS, sda3 "Glavni", 1.3TB free) mounted as directory storage `desktopbackup`. fstab uses `soft,timeo=50,retrans=3,_netdev,nofail` to prevent system hang when desktop is off. Daily automated backups with ZSTD compression, 3-backup retention.
+Desktop HDD partition (`sda3`, NTFS, label "Glavni", ~1.2TB free) exported over NFS and consumed by Proxmox as **native `nfs` storage** `desktopbackup` (server `192.168.100.132`, export `/mnt/hdd/vm-backups/proxmox`, PVE mounts it at `/mnt/pve/desktopbackup`). PVE owns the mount lifecycle with `soft` options so the host never hangs when the desktop is off. Daily `vzdump` at 21:00, ZSTD, keep-last=3. Full detail in `scripts/backups.md` and `infrastructure/proxmox.md`.
+
+> Converted from `dir`-type + fstab mount to native `nfs` on 2026-09-06 — the old `dir`+fstab combo caused a `mkdir: File exists` failure that silently killed backups.
 
 ---
 

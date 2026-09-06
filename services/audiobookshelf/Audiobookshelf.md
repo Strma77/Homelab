@@ -1,5 +1,7 @@
 # Audiobookshelf
 
+> **Status (2026-09): under review — flagged not-working since the Proxmox migration (see TODO: "fix or retire").** This service now runs as part of **VM 100 (docker-host)** at `10.10.20.50` on Proxmox. Everything below describing VirtualBox, `vboxsf` shared folders, Netplan/`enp0s3`, and `192.168.100.50` is **pre-migration history**, not the current setup — do not follow it as current config. A full rewrite is deferred until the fix-or-retire decision is made.
+
 Self-hosted audiobook server running in Docker on an Ubuntu Server VM, accessible remotely via Tailscale.
 
 ---

@@ -11,7 +11,7 @@
 
 **What machine are you hardening?**
 
-- **Ubuntu Server VM** (like your Docker host at `192.168.100.50`): you already have a non-root user called `admin`. Skip straight to Step 1.
+- **Ubuntu Server VM** (like your Docker host at `10.10.20.50`): you already have a non-root user called `admin`. Skip straight to Step 1.
 - **Proxmox host** (like your Beelink at `192.168.100.10`): you only have `root` right now. You MUST create a non-root user first — go to Step 0.
 
 **What machine are you running commands FROM?**
@@ -22,7 +22,7 @@ Your main desktop/laptop PC — referred to as **DESKTOP** throughout. The machi
 
 | Placeholder | Replace with | Example |
 |---|---|---|
-| `SERVER_IP` | The IP of the machine you're hardening | `192.168.100.10` or `192.168.100.50` |
+| `SERVER_IP` | The IP of the machine you're hardening | `192.168.100.10` or `10.10.20.50` |
 | `YOUR_USER` | The non-root username on the server | `admin` or `vito` |
 | `you@email` | Your actual email (for SSH key comment only, not functional) | `vito@homelab` |
 

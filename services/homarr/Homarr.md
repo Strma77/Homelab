@@ -4,7 +4,7 @@
 **Why:** Front door for the stack — one bookmarked URL instead of remembering 6 different `IP:port` combinations.
 **Where:** Container `homarr` on the `homelab` Docker network, UI on `:7575` (mapped to internal port `3000`).
 **Image:** `ghcr.io/homarr-labs/homarr:latest` (migrated from deprecated `ajnart/homarr` in July 2026)
-**Status:** Running on Docker VM at `192.168.100.50`.
+**Status:** Running on Docker VM at `10.10.20.50`.
 
 ---
 
@@ -56,11 +56,11 @@ Configuration is done through the web UI, not in files. The dashboard layout liv
 | Tile | URL |
 |------|-----|
 | Proxmox | `https://192.168.100.10:8006` |
-| Pi-hole | `http://192.168.100.53/admin` |
-| Portainer | `https://192.168.100.50:9443` |
-| Uptime Kuma | `http://192.168.100.50:3001` |
-| NPM | `http://192.168.100.50:81` |
-| Audiobookshelf | `http://192.168.100.50:13378` |
+| Pi-hole | `http://10.10.20.53/admin` |
+| Portainer | `https://10.10.20.50:9443` |
+| Uptime Kuma | `http://10.10.20.50:3001` |
+| NPM | `http://10.10.20.50:81` |
+| Audiobookshelf | `http://10.10.20.50:13378` |
 
 ---
 
@@ -68,7 +68,7 @@ Configuration is done through the web UI, not in files. The dashboard layout liv
 
 ```bash
 docker ps | grep homarr
-curl -I http://192.168.100.50:7575
+curl -I http://10.10.20.50:7575
 ```
 
 The real check is the browser: open the dashboard, confirm tiles render and clicking each one reaches the expected service.

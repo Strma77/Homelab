@@ -54,7 +54,7 @@ In other words, the socket is effectively a root shell on the host for anyone wi
 **Important:** Portainer locks out admin account creation after roughly 5 minutes of first start if no account exists. This is a security feature — prevents someone else from claiming the admin slot if you deploy and walk away. So:
 
 1. `docker compose up -d`
-2. Immediately browse to `http://192.168.100.50:9000`
+2. Immediately browse to `http://10.10.20.50:9000`
 3. Create the admin account with a strong password and save it
 4. If the lockout did trigger, restart the container to reset the timer
 
@@ -79,7 +79,7 @@ Verified present in the most recent archive.
 
 ```bash
 docker ps | grep portainer
-curl -I http://192.168.100.50:9000
+curl -I http://10.10.20.50:9000
 docker network inspect homelab --format '{{range .Containers}}{{.Name}} {{end}}'
 ```
 

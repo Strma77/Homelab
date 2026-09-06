@@ -22,7 +22,8 @@ This is not a production environment. It is a learning-focused lab shaped by act
 - **2026-08:** DNS chain reconfigured: devices → router → OPNsense (Unbound) → Pi-hole → upstream DNS
 - **2026-08:** Lab zone (`10.10.30.0/24`) created with firewall rules blocking access to Services zone
 - **2026-08:** NFS backup storage configured from desktop HDD with soft mount options
-- **2026-08:** Automated Proxmox backups — daily ZSTD to NFS, 3-backup retention
+- **2026-09:** Backup stack repaired — `vzdump` daily 21:00 ZSTD, keep-last=3, VMIDs 100/101/102, native NFS storage, ntfy push alerts (silently dead 2026-06 to 2026-09; see `scripts/backups.md`)
+- **2026-08:** Automated Proxmox backups first set up (later found broken)
 - **2026-08:** VM templates and snapshots — Ubuntu 24.04 template, full snapshot lifecycle tested
 - **2026-07:** Phase 1 migration — all services migrated from VirtualBox to Proxmox on Beelink ME Mini
 - **2026-07:** Pi-hole migrated from Docker to dedicated LXC container — always-on DNS
@@ -62,13 +63,13 @@ This is not a production environment. It is a learning-focused lab shaped by act
 All devices → ISP Router (.1) → OPNsense (.2, Unbound) → Pi-hole (10.10.20.53) → Cloudflare (1.1.1.1)
 ```
 
-Pi-hole filters ads/trackers at the DNS level. OPNsense's Unbound forwards to Pi-hole. Router DHCP pushes OPNsense as primary DNS to all clients.
+Pi-hole filters ads/trackers at the DNS level. OPNsense's Unbound forwards to Pi-hole. **Known open issue:** ad-blocking currently leaks on some clients (DNS-blocking ceiling on first-party ads + a suspected client-side `1.1.1.1` fallback). See `services/pihole/Pihole.md`. Router DHCP pushes OPNsense as primary DNS to all clients.
 
 ### Live Services (Docker VM at `10.10.20.50`)
 
 - **Audiobookshelf** — audiobook server, localhost-bound (`:13378`), accessible via NPM reverse proxy
 - **Nginx Proxy Manager** — reverse proxy, routes by hostname, admin on `:81`
-- **Uptime Kuma** — 8 monitors + Telegram alerts covering all services, DNS, and Proxmox
+- **Uptime Kuma** — 7 monitors + Telegram alerts covering all services, DNS, and an external sanity check (verify count/targets against live Kuma)
 - **Portainer** — visual Docker management UI on `:9443`
 - **Homarr** — dashboard landing page on `:7575`, links to all services
 
@@ -81,7 +82,7 @@ Pi-hole filters ads/trackers at the DNS level. OPNsense's Unbound forwards to Pi
 ### Security
 
 - Proxmox host and Docker VM: SSH key-only auth, root login disabled, fail2ban, UFW
-- OPNsense firewall rules: Users can reach Services on specific ports. Lab zone blocked from Services. Lab can reach internet only.
+- OPNsense firewall rules: Lab zone blocked from Services (configured, isolation untested). Lab can reach internet only. **WAN/Users -> Services is still `any` (open) — not yet restricted to specific ports.** See `infrastructure/opnsense.md`.
 - DNS filtered through Pi-hole for all network clients
 - IOMMU enabled for future PCI passthrough
 
@@ -98,7 +99,8 @@ homelab/
 │   ├── workstation-setup.md
 │   └── [network topology diagrams]
 ├── infrastructure/
-│   └── opnsense.md
+│   ├── opnsense.md
+│   └── proxmox.md
 ├── scripts/
 │   ├── backup-homelab.sh
 │   └── backups.md
@@ -137,6 +139,7 @@ Reverse proxy routing homelab services by hostname. Admin on `:81`.
 
 ### Pi-hole
 Network-wide DNS + ad-blocking. LXC container (CT 101) at `10.10.20.53`. DNS chain: router → OPNsense → Pi-hole → upstream.
+→ [Pihole.md](services/pihole/Pihole.md)
 
 ### Uptime Kuma
 Monitoring + alerting. 8 monitors covering all services, DNS, and Proxmox. Telegram alerts.
@@ -149,6 +152,10 @@ Visual container management UI on `:9443`.
 ### Homarr
 Dashboard landing page. All services linked from one URL at `:7575`.
 → [Homarr.md](services/homarr/Homarr.md)
+
+### Roadmap
+Self-hosted static roadmap/progress page (nginx) at `:8080`.
+→ [Roadmap.md](services/roadmap/Roadmap.md)
 
 ### OPNsense
 Virtual firewall/router. Routes and filters traffic between WAN/Users, Services, and Lab zones.
@@ -163,6 +170,7 @@ Wazuh SIEM + Kali + Metasploitable2. Attack/detect loop verified with MITRE ATT&
 ## Infrastructure
 
 ### Proxmox Host (Beelink ME Mini)
+→ [infrastructure/proxmox.md](infrastructure/proxmox.md)
 - **Hardware:** Intel N150, 16GB LPDDR5, 1TB NVMe, dual 2.5GbE
 - **Host IP:** `192.168.100.10`
 - **Web UI:** `https://192.168.100.10:8006`

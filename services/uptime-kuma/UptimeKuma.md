@@ -1,9 +1,11 @@
 # Uptime Kuma
 
+> **Post-migration verify (2026-09):** services moved to `10.10.20.50` (Docker host) and Pi-hole to `10.10.20.53`. Several monitor targets below still show the pre-migration `192.168.100.50`. These describe the *running* Kuma config, which must be reconciled in the live Kuma UI — if the monitors still point at `192.168.100.50`, they are testing a dead IP and your monitoring is silently broken. Verify each monitor, update to the new IPs, then correct this doc. History sections intentionally keep the old IP.
+
 **What:** Monitoring + alerting for the homelab.
 **Why:** Every compose file has a healthcheck, but nothing acted on them until Kuma. The container daemon just sets a flag and moves on — no human ever sees it unless they run `docker ps`. Kuma polls services, tracks history, and fires Telegram alerts when something fails.
 **Where:** Container `uptime-kuma` on the shared `homelab` Docker network, admin UI on `:3001`.
-**Status:** Running with 7 monitors covering each service plus DNS and an external sanity check. Telegram notifications wired up and verified. Break/fix drill executed and documented in `Pihole.md`.
+**Status:** Running with 7 monitors covering each service plus DNS and an external sanity check. Telegram notifications wired up and verified. Break/fix drill executed and documented in `../pihole/Pihole.md`.
 
 ---
 
@@ -97,7 +99,7 @@ See `scripts/backups.md` for the script + retention details.
 docker ps | grep uptime-kuma
 
 # Admin UI reachable
-curl -I http://192.168.100.50:3001
+curl -I http://10.10.20.50:3001
 
 # On the homelab network with the services it monitors
 docker network inspect homelab --format '{{range .Containers}}{{.Name}} {{end}}'
