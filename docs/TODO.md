@@ -28,8 +28,8 @@
 - [x] workstation-setup.md backup section -> native nfs reality
 - [x] Stale IPs fixed in Homarr/NPM/Portainer/vm-hardening
 - [x] README: false firewall claim, ad-block honesty, backup history, monitor count
-- [ ] **VERIFY LIVE — Uptime Kuma monitor targets** still show 192.168.100.50 in the doc. Reconcile against the running Kuma UI; if monitors point at the dead IP, monitoring is silently broken. Then update UptimeKuma.md.
-- [ ] **VERIFY LIVE — Homarr tiles** — doc updated to 10.10.20.x; confirm the running dashboard tiles match (not just the doc).
+- [x] **VERIFY LIVE — Uptime Kuma monitor targets** still show 192.168.100.50 in the doc. Reconcile against the running Kuma UI; if monitors point at the dead IP, monitoring is silently broken. Then update UptimeKuma.md.
+- [x] **VERIFY LIVE — Homarr tiles** — doc updated to 10.10.20.x; confirm the running dashboard tiles match (not just the doc).
 - [ ] Audiobookshelf — fix-or-retire decision, then rewrite Audiobookshelf.md (currently VirtualBox-era history with a status banner).
 
 ## Phase 1 — Parked
