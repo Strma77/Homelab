@@ -77,3 +77,7 @@
 - [ ] SOC lab migration into Proxmox — use Lab zone (`10.10.30.0/24`)
 - [ ] WireGuard — deferred, Tailscale covers the use case
 - [ ] Localhost-bind refactor for remaining services (Uptime Kuma, Homarr)
+- [ ] Discuss making RepCount app clone
+- [ ] Discuss expediting the AI development to have local AI agent on my phone and PC asap
+- [ ] Rework MonkDew
+- [ ] Host MonkDew on proxmox
