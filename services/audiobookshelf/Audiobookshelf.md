@@ -1,295 +1,46 @@
 # Audiobookshelf
 
-> **Status (2026-09): under review — flagged not-working since the Proxmox migration (see TODO: "fix or retire").** This service now runs as part of **VM 100 (docker-host)** at `10.10.20.50` on Proxmox. Everything below describing VirtualBox, `vboxsf` shared folders, Netplan/`enp0s3`, and `192.168.100.50` is **pre-migration history**, not the current setup — do not follow it as current config. A full rewrite is deferred until the fix-or-retire decision is made.
+**What:** Self-hosted audiobook server + mobile app. Streams the personal audiobook library.
+**Why:** Own the library, listen from anywhere without a subscription service.
+**Where:** Docker container on VM 100 (`docker-host`, `10.10.20.50`). Image `ghcr.io/advplyr/audiobookshelf:latest` (v2.36.0). Accessed primarily through the Audiobookshelf mobile app over Tailscale.
 
-Self-hosted audiobook server running in Docker on an Ubuntu Server VM, accessible remotely via Tailscale.
-
----
-
-## Networking Configuration
-
-The Ubuntu Server VM uses a **bridged network adapter**, allowing it to behave as a first-class host on the LAN.
-
-### IP Addressing
-
-| Setting | Value |
-|---------|-------|
-| Interface | `enp0s3` |
-| Static IP | `192.168.100.50/24` |
-| Gateway | `192.168.100.1` |
-| DNS | `1.1.1.1`, `8.8.8.8` |
-
-A static IP ensures consistent addressing for VPN endpoints and service access.
-
-### Netplan Configuration
-
-`/etc/netplan/50-cloud-init.yaml`:
-
-```yaml
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    enp0s3:
-      dhcp4: no
-      addresses: [192.168.100.50/24]
-      routes:
-        - to: default
-          via: 192.168.100.1
-      nameservers:
-        addresses: [1.1.1.1, 8.8.8.8]
-```
-
-```bash
-sudo netplan apply
-```
-
-> **Note:** DNS must be explicitly set in Netplan. Without it, Docker image pulls fail and Tailscale throws DNS errors on startup.
-
----
-
-## Environment Constraints
-
-Deployed on a residential network behind an **ISP-provided ZTE F8648P XGS-PON ONT** with no access to NAT, port forwarding, or firewall configuration. Inbound connections from the public internet are not possible.
-
-All remote access must use outbound-only or NAT-traversal-friendly solutions.
-
----
-
-## Remote Access — Tailscale
-
-### Why Tailscale
-
-Traditional VPN hosting requires inbound port forwarding which the ISP ONT blocks. Tailscale works via outbound-only connections, requiring zero router configuration.
-
-### Installation
-
-```bash
-curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up --accept-dns=false
-tailscale status
-```
-
-> **Critical:** Always use `--accept-dns=false`. Without it, Tailscale overrides system DNS and breaks connectivity after reboot.
-
-### Client Setup
-
-- Install Tailscale on all client devices (phone, laptop, etc.)
-- Authenticate under the same account
-- Confirm the VM shows a green dot in the Tailscale app before attempting to connect
-
-### Verify
-
-```bash
-tailscale status        # VM should show with 100.x.x.x IP
-curl http://100.x.x.x:13378  # Should return HTML if Audiobookshelf is running
-```
-
----
-
-## Storage Architecture
-
-Audiobooks are stored on the **host machine's SSD** as a single source of truth. The VM accesses them via a VirtualBox shared folder — no duplication, no sync overhead.
-
-### Host Setup
-
-Create the directory on the host:
-
-```bash
-mkdir ~/audiobooks
-```
-
-In **VirtualBox GUI** → VM Settings → Shared Folders → Add:
-
-| Setting | Value |
-|---------|-------|
-| Folder Path | `~/audiobooks` |
-| Folder Name | `audiobooks` |
-| Mount Point | *(leave empty)* |
-| Make Permanent | ✅ |
-| Make Global | ❌ |
-| Read-only | ❌ |
-
-### VM Setup
-
-```bash
-sudo mkdir -p /mnt/audiobooks
-```
-
-Add to `/etc/fstab` for persistence:
-
-```
-audiobooks  /mnt/audiobooks  vboxsf  defaults,uid=1000,gid=1000  0  0
-```
-
-Mount immediately without rebooting:
-
-```bash
-sudo mount -a
-ls /mnt/audiobooks  # should return contents or empty with no errors
-```
-
-> **Note:** VirtualBox auto-mount is unreliable. Always use `/etc/fstab`. Guest Additions must be installed for shared folders to work — verify with `lsmod | grep vboxguest`.
-
----
-
-## Deployment
-
-Deployed via `docker-compose.yml` in this directory.
-
-From the VM:
-```bash
-cd ~/homelab/services/audiobookshelf
-docker compose up -d
-docker ps   # verify (healthy) status appears after ~40s
-```
-
-The compose stack uses:
-- Named volumes for `/config` and `/metadata` (Docker-managed app state)
-- Bind mount `/mnt/audiobooks` → `/audiobooks` (user-managed media library)
-- Custom `homelab` bridge network for future inter-service DNS
-- HTTP healthcheck via `wget --spider http://localhost/` (40s start_period)
-- `restart: unless-stopped` so the container survives VM reboots
-
-See `docker-compose.yml` in this directory for the full definition.
+> **Migration note (2026-09):** this service moved from the old VirtualBox setup to Proxmox VM 100. The old `vboxsf` shared-folder media path and `192.168.100.50` addressing are dead — see History. Current setup below.
 
 ---
 
 ## Access
 
-The service is reachable only through Nginx Proxy Manager by hostname:
+| Method | URL |
+|--------|-----|
+| LAN (browser) | `http://10.10.20.50:13378/audiobookshelf` |
+| Remote (mobile app) | Tailscale IP of VM 100, port `13378` |
 
-```text
-http://audiobookshelf.home
-```
+- The container binds `0.0.0.0:13378` (all interfaces) so it's reachable over the LAN and Tailscale. It was previously `127.0.0.1`-only, which is why it appeared "broken" after migration — reachable from nowhere.
+- App serves under base path **`/audiobookshelf`** (`ROUTER_BASE_PATH`). Root `/` will look broken — always include `/audiobookshelf`.
+- Remote access is via **Tailscale** (VM + phone on the same tailnet). No port-forwarding, no public exposure. Since it's used through the mobile app, no domain/NPM is needed.
 
-Direct access via `http://192.168.100.50:13378` was removed in the localhost-bind refactor (see History). The container's port 13378 is now bound to `127.0.0.1` on the VM, so only NPM — which talks to the container by name on the `homelab` Docker network — can reach it. External LAN devices have no path to the container directly.
-
-For initial library setup, do it after NPM is configured to route `audiobookshelf.home` and your DNS knows where that hostname lives (Pi-hole or `/etc/hosts`).
-
-## Tailscale access after the localhost-bind refactor
-
-The localhost-bind refactor removed direct `100.x.x.x:13378` access from Tailscale clients. To preserve hostname access (`audiobookshelf.home`) over Tailscale, the VM was configured to advertise the LAN subnet:
-
-```bash
-sudo tailscale up --advertise-routes=192.168.100.0/24 --accept-dns=false
-```
-
-Route approved in the Tailscale admin console. Combined with split DNS (`*.home` queries forwarded to Pi-hole at `192.168.100.50`), Tailscale clients can resolve and reach homelab services by hostname when the VM is online.
-
-**Architectural ceiling:** this entire chain depends on the VM being on. When the VM is off, Pi-hole is off, DNS for `.home` fails, and the service is unreachable anyway. Phase 1 (Proxmox + always-on host) is the proper fix. For now, mobile use should download content locally for offline access.
-
-IPv4 + IPv6 forwarding persisted in `/etc/sysctl.d/99-tailscale.conf`.
-
-### Mobile / remote access
-
-- On the LAN: `http://audiobookshelf.home` (requires DNS pointing at the VM)
-- Via Tailscale: `http://100.x.x.x:13378` no longer works after the refactor; use `http://audiobookshelf.home` once Tailscale clients resolve `.home` (Phase 1 work — configure Tailscale MagicDNS or per-device DNS)
+> An old NPM proxy host `audiobookshelf.home → audiobookshelf:80` exists but is unused — the local DNS record for `.home` never resolved, and the app-over-Tailscale workflow doesn't need it. Left in place, not relied on.
 
 ---
 
-## Architecture Overview
+## Storage
 
-```
-[Mobile / Desktop client]
-        │
-   Tailscale (encrypted mesh, 100.x.x.x)
-        │
-        ▼
-[Ubuntu Server VM — 192.168.100.50]
-        │
-   docker compose stack (network: homelab)
-        │
-        ▼
-┌──────────────────────────────────────┐
-│  audiobookshelf:latest  (port 13378) │
-│  healthcheck: wget /, every 30s      │
-└──┬───────────────┬──────────────┬────┘
-   │               │              │
-   ▼               ▼              ▼
-[named vol]   [named vol]    [bind mount]
- _config       _metadata      /mnt/audiobooks
-                                  │
-                                  ▼
-                          vboxsf shared folder
-                                  │
-                                  ▼
-                          [Host SSD — ~/audiobooks]
-```
+| Mount | Container path | Notes |
+|-------|----------------|-------|
+| `/mnt/audiobooks` (bind) | `/audiobooks` | Media library (~8 GB) |
+| `audiobookshelf_config` (volume) | `/config` | DB, users, settings |
+| `audiobookshelf_metadata` (volume) | `/metadata` | Covers, cached metadata |
 
----
-
-## Key Design Decisions
-
-1. **Tailscale over traditional VPN** — no port forwarding needed, works behind locked ISP equipment
-2. **Shared folders over file duplication** — single source of truth on host SSD
-3. **Dockerized deployment** — easy updates, isolated, portable
-
----
-
-## Limitations
-
-- VM and service depend on host uptime
-- Tailscale must be active on all client devices
-- No HTTPS — acceptable since Tailscale encrypts the tunnel end-to-end
-
----
-
-## Future Improvements
-
-- Migrate to dedicated always-on hardware
-- Reverse proxy via Nginx Proxy Manager (Phase 0) with HTTPS through internal CA in Phase 3
-- Automate library rescans
+- **Media lives ON the VM**, copied from the desktop (`/home/strma77/Music/Audiobooks`) via `rsync`, owned `strma:strma`. This is deliberate: media on the always-on Beelink, not an NFS mount from the sometimes-off desktop — so the library works even when the desktop is off.
+- To add books later: `rsync -av <source>/ strma@10.10.20.50:/mnt/audiobooks/` then trigger a library re-scan in the app (Settings → Libraries → re-scan). New files are not auto-indexed reliably.
+- The `config` + `metadata` volumes are captured by the nightly `vzdump` of VM 100 (see `scripts/backups.md`). In-app auto-backups are disabled — vzdump covers it.
 
 ---
 
 ## History
 
-### 2026-06 — Localhost-bind refactor
+### 2026-09 — Fixed post-migration
+Container was healthy but unreachable: bound to `127.0.0.1` only, and its media folder (`/mnt/audiobooks`) was empty because the library never migrated. Fixed by copying media from the desktop via rsync and flipping the bind to `0.0.0.0:13378`. Verified working from cellular via Tailscale.
 
-Closed the documented Docker/UFW bypass for this service. Container port binding changed from `0.0.0.0:13378:80` to `127.0.0.1:13378:80` in the compose file. External LAN clients can no longer reach Audiobookshelf directly by `IP:port`; the only path in is now through Nginx Proxy Manager by hostname.
-
-The refactor exploits a property of the `homelab` Docker network we built earlier: NPM and Audiobookshelf both live on it and resolve each other by container name. So even with the host port bound to loopback only, NPM still reaches the container on `audiobookshelf:80` over the bridge network — no host port hop required.
-
-**Verified end-to-end:** direct `192.168.100.50:13378` access fails with connection refused from both the VM and a separate LAN client. Hostname access via `audiobookshelf.home` continues to serve content through NPM. Uptime Kuma's HTTP monitor (which also uses container-name routing on the homelab network) stayed green through the container recreate.
-
-UFW rule `13378/tcp ALLOW` was removed since the port is no longer externally exposed and the rule documented nothing real.
-
-Compose diff:
-```text
-- "13378:80"
-+ "127.0.0.1:13378:80"
-```
-
-This is the pattern other user-facing services (Uptime Kuma, Homarr) can adopt incrementally. Admin tooling (Pi-hole admin UI, NPM admin, Portainer) is deliberately left directly accessible as break-glass for diagnosing outages of the routing or DNS layers themselves.
-
-
-### 2026-05-09 — Migrate from `docker run` to `docker-compose.yml`
-**Why:** Original deployment was a hand-typed `docker run` invocation copied from documentation without full understanding. Not version-controllable, not reproducible, no healthcheck, bind mounts everywhere.
-
-**Changes:**
-- Replaced `docker run` with declarative `docker-compose.yml` in repo
-- Switched `/config` and `/metadata` to named volumes (Docker-managed)
-- Kept `/audiobooks` as bind mount to `/mnt/audiobooks` (user-managed media)
-- Added custom `homelab` bridge network (foundation for inter-service DNS)
-- Added HTTP healthcheck via `wget` with 40s start_period
-- Migrated existing config/metadata into the new named volumes via `cp -a`
-
-**Validation:** Container reports healthy, library and listening progress preserved across migration. Old container kept renamed as `audiobookshelf_old` for 24h rollback window.
-
-### 2026-03-01 — Initial deployment
-Hand-typed `docker run` deployment with bind mounts to `~/audiobookshelf/config` and `~/audiobookshelf/metadata`. Audiobooks served from `/mnt/audiobooks` via VirtualBox shared folder. Remote access via Tailscale.
-
-(Deployment retroactively replaced 2026-05; see migration entry above.)
-
----
-
-## Lessons Learned
-
-| Issue | Fix |
-|-------|-----|
-| VirtualBox auto-mount unreliable | Use `/etc/fstab` instead |
-| Docker pull fails on fresh VM | Set explicit DNS in Netplan (`8.8.8.8`, `1.1.1.1`) |
-| Tailscale DNS errors on reboot | Use `--accept-dns=false` on `tailscale up` |
-| Tailscale IP unreachable from phone | Tailscale app must be active and connected on the client device |
-| Service accessible locally but not via Tailscale | Confirm VM shows green dot in Tailscale app on client |
+### Pre-2026-09 — VirtualBox era
+Ran in VirtualBox at `192.168.100.50` with media via a `vboxsf` shared folder and remote access via Tailscale on the desktop host. All superseded by the Proxmox VM setup above.
