@@ -121,9 +121,9 @@ homelab/
 
 ## Network Topology
 
-![Homelab network topology](docs/HomeLab-NetworkTopologyV3.png)
+![Homelab network topology](docs/HomeLab-NetworkTopologyV4.png)
 
-Source file: [docs/HomeLab-NetworkTopologyV3.excalidraw](docs/HomeLab-NetworkTopologyV3.excalidraw)
+Source file: [docs/HomeLab-NetworkTopologyV4.excalidraw](docs/HomeLab-NetworkTopologyV4.excalidraw)
 
 ---
 
