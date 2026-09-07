@@ -625,10 +625,10 @@
       <div class="section">
         <div class="section-title">// Network Segmentation with VLANs</div>
         <ul class="checklist">
-          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Understand VLANs conceptually — tagged vs untagged, trunks, access ports<span class="check-note">Draw it on paper before configuring it. What traffic goes where and why.</span></div></li>
-          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Create Linux bridges in Proxmox for network separation<span class="check-note">vmbr0 for management, vmbr1 for services, vmbr2 for lab/experimental traffic.</span></div></li>
-          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Deploy pfSense or OPNsense as a VM — your virtual router/firewall<span class="check-note">This is the backbone of proper network segmentation. All inter-VLAN traffic routes through here.</span></div></li>
-          <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Configure firewall rules between VLANs<span class="check-note">Management VLAN can reach Services VLAN. Lab VLAN is isolated from everything. Understand why each rule exists.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Understand VLANs conceptually — tagged vs untagged, trunks, access ports<span class="check-note">Draw it on paper before configuring it. What traffic goes where and why.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Create Linux bridges in Proxmox for network separation<span class="check-note">vmbr0 for management, vmbr1 for services, vmbr2 for lab/experimental traffic.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Deploy pfSense or OPNsense as a VM — your virtual router/firewall<span class="check-note">This is the backbone of proper network segmentation. All inter-VLAN traffic routes through here.</span></div></li>
+          <li onclick="toggleCheck(this)" class="done"><div class="check-box">✓</div><div class="check-text">Configure firewall rules between VLANs<span class="check-note">Management VLAN can reach Services VLAN. Lab VLAN is isolated from everything. Understand why each rule exists.</span></div></li>
           <li onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Document your network topology as a diagram<span class="check-note">Draw.io or Excalidraw. Every VLAN, every VM, every connection. Keep it updated.</span></div></li>
         </ul>
       </div>
@@ -662,7 +662,7 @@
       <div class="checkpoints">
         <div class="checkpoint-title">// Exit Checkpoints</div>
         <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>Can spin up a new VM from template in under 5 minutes</span></div>
-        <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>VLAN segmentation is working — lab traffic can't reach services traffic</span></div>
+        <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>VLAN segmentation is working — lab traffic can't reach services traffic</span></div>
         <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>All previous services running inside Proxmox, nothing left on bare Ubuntu</span></div>
         <div class="checkpoint-item" onclick="toggleCp(this)" class="done"><div class="cp-box">✓</div><span>Can recover a failed VM from snapshot or backup</span></div>
         <div class="checkpoint-item" onclick="toggleCp(this)"><div class="cp-box">✓</div><span>Network topology diagram is accurate and up to date</span></div>
