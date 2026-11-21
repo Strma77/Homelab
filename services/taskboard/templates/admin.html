@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task Board — Admin</title>
+<style>
+  body { font-family: system-ui, Arial, sans-serif; max-width: 820px; margin: 0 auto;
+         padding: 16px; background: #0e1116; color: #e6e6e6; }
+  a { color: #7cc4ff; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .muted { color: #9aa4b2; font-size: 13px; }
+  .card { background:#171c24; border:1px solid #232a33; border-radius:10px;
+          padding:14px; margin:14px 0 20px; }
+  input[type=text], select { font-size:16px; padding:10px; border-radius:8px;
+          border:1px solid #2b333d; background:#0e1116; color:#e6e6e6; }
+  .add input[type=text]{ width:100%; margin-bottom:8px; }
+  button { font-size:15px; padding:9px 14px; border-radius:8px; border:0;
+           background:#2d6cdf; color:#fff; cursor:pointer; }
+  button.sec { background:#2b333d; }
+  button.danger { background:#9b2c2c; }
+  .grp { font-size:13px; text-transform:uppercase; letter-spacing:1px;
+         color:#9aa4b2; margin:20px 0 6px; }
+  .row { border-bottom:1px solid #232a33; padding:10px 0; overflow:hidden; }
+  .row form.edit { display:inline-block; }
+  .row .acts { float:right; white-space:nowrap; }
+  .row .acts form { display:inline; }
+  .row input.title { width:260px; }
+  .row input.title.done { text-decoration: line-through; color:#5b6472; }
+</style>
+</head>
+<body>
+  <h1>Task Board — Admin</h1>
+  <p class="muted"><a href="/">&larr; display view</a> &middot; {{ now.strftime('%a %d.%m.%Y %H:%M') }}</p>
+
+  <!-- add -->
+  <div class="card add">
+    <form method="post" action="/admin/add">
+      <input type="text" name="title" placeholder="New task&hellip;" autofocus required>
+      <select name="recurrence">
+        {% for r in recurrences %}<option value="{{ r }}">{{ labels[r] }}</option>{% endfor %}
+      </select>
+      <button type="submit">Add task</button>
+    </form>
+  </div>
+
+  <!-- manage -->
+  {% for key, label, tasks in groups %}
+    <div class="grp">{{ label }}</div>
+    {% if not tasks %}
+      <p class="muted">&mdash; none &mdash;</p>
+    {% else %}
+      {% for t in tasks %}
+      <div class="row">
+        <form class="edit" method="post" action="/admin/edit">
+          <input type="hidden" name="id" value="{{ t.id }}">
+          <input class="title {{ 'done' if t.done else '' }}" type="text" name="title" value="{{ t.title }}">
+          <select name="recurrence">
+            {% for r in recurrences %}
+            <option value="{{ r }}" {{ 'selected' if r == t.recurrence else '' }}>{{ labels[r] }}</option>
+            {% endfor %}
+          </select>
+          <button class="sec" type="submit">Save</button>
+        </form>
+        <span class="acts">
+          {% if t.done %}
+          <form method="post" action="/admin/reset">
+            <input type="hidden" name="id" value="{{ t.id }}">
+            <button class="sec" type="submit">Uncheck</button>
+          </form>
+          {% endif %}
+          <form method="post" action="/admin/delete" onsubmit="return confirm('Delete this task?');">
+            <input type="hidden" name="id" value="{{ t.id }}">
+            <button class="danger" type="submit">Delete</button>
+          </form>
+        </span>
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  taskboard:
+    build: .
+    container_name: taskboard
+    restart: unless-stopped
+    ports:
+      - "8080:8080"          # host:container — change left side if 8080 is taken
+    volumes:
+      - ./data:/data         # tasks.db lives here, survives rebuilds
+    environment:
+      - TZ=Europe/Zagreb
+      - REFRESH_SECONDS=30   # tablet auto-refresh interval
